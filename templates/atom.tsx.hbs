@@ -1,0 +1,25 @@
+import React, { ReactNode } from "react";
+import s from './{{pascalCase name}}.module.scss';
+import { useTheme } from "@catoms/Theme";
+import { classNameFind } from "@common/utils";
+
+export interface {{pascalCase name}}Props{
+	children?: ReactNode;
+}
+
+const {{pascalCase name}} = ({
+	className,
+	children,
+	...props
+}: {{pascalCase name}}Props & React.HTMLAttributes<HTMLDivElement>) => {
+	const theme = useTheme();
+	className = classNameFind(s, `comp`, theme.name, className);
+
+	return (
+		<div className={className} {...props}>
+			{children}
+		</div>
+	);
+};
+
+export default {{pascalCase name}};
