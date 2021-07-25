@@ -8,10 +8,6 @@ import Apply from "src/common/atoms/HOC/Apply";
 import Icon from "src/common/atoms/Icon";
 import { FiX } from "react-icons/fi";
 
-// const MyField = (props)=>{
-// 	return Input
-// }
-
 const EDEForm = () => {
 	return (
 		<Form initialState={{}}>
@@ -20,21 +16,12 @@ const EDEForm = () => {
 					<div className='col-9' style={{ display: "flex", justifyContent: "center", flexFlow: "column nowrap" }}>
 						<div className='card' style={{ flex: "0 1 100px" }}>
 							<h3 style={{ textAlign: "center" }}>Primary Contact</h3>
-							{/* <div className='col'> */}
+
 							<GroupClose>
 								<Field name='primary.first' label='First Name' required />
 								<Field name='primary.middle' label='Middle Name' />
 								<Field name='primary.last' label='Last Name' required style={{ flexGrow: 2 }} />
 							</GroupClose>
-							{/* </div> */}
-
-							{/* <Field name='primary.suffix' type='select'>
-								<option value='' selected>
-									Suffix (optional)
-								</option>
-								<option value='mr'>Mr.</option>
-								<option value='ms'>Ms.</option>
-							</Field> */}
 
 							<Apply className='margin-2'>
 								<Field name='primary.sex' type='select' label='Sex'>
@@ -42,15 +29,8 @@ const EDEForm = () => {
 									<option value='female'>Female</option>
 								</Field>
 								<Field name='primary.dob' type='date' label='Date of Birth' required />
-
-								<Field name='primary.tobacco' type='checkbox' label='Tobacco User'>
-									{/* <option value='true'>Yes</option>
-									<option value='false'>No</option> */}
-								</Field>
+								<Field name='primary.tobacco' type='checkbox' label='Tobacco User' />
 							</Apply>
-							
-							<Field type="toggle" name="test" label="Test Toggle" id="test-toggle"/>
-							
 
 							<Divider />
 
@@ -60,8 +40,10 @@ const EDEForm = () => {
 									<div>
 										{arr.map((phone, i) => (
 											<div className='border padding-3' style={{ position: "relative" }} key={i}>
-												<div style={{fontSize:'1em', fontWeight:'bold'}} className="margin-bottom-3">Phone {i}</div>
-												<Field name={`${name}[${i}].number`} label={`Number`} required/>
+												<div style={{ fontSize: "1em", fontWeight: "bold" }} className='margin-bottom-3'>
+													Phone {i}
+												</div>
+												<Field name={`${name}[${i}].number`} label={`Number`} required />
 												<Field name={`${name}[${i}].type`} type='select' label='Type' id={`phone-type-${i}`} required>
 													<option value='home'>Home</option>
 													<option value='cell'>Cell</option>
@@ -81,32 +63,21 @@ const EDEForm = () => {
 									</div>
 								)}
 							</FieldArray>
-							<Divider/>
+							<Divider />
 
 							<div className='col'>
 								<div className='col-12 col-6-tablet'>
-									{/* <label> */}
-										<Field name='primary.notice.type' type='radio' value='paperless' label="Paperless"/>
-										{/* Go paperless */}
-									{/* </label> */}
+									<Field name='primary.notice.type' type='radio' value='paperless' label='Paperless' />
+
 									{values.primary?.notice?.type === "paperless" && (
 										<div>
-											<label>
-												<Field type='checkbox' name='primary.notice.text' />
-												Text Me
-											</label>
-											<label>
-												<Field type='checkbox' name='primary.notice.email' />
-												Email Me
-											</label>
+											<Field type='checkbox' name='primary.notice.text' label='Text Me' />
+											<Field type='checkbox' name='primary.notice.email' label='Email Me' />
 										</div>
 									)}
 								</div>
 								<div className='col-12 col-6-tablet'>
-									<label>
-										<Field name='primary.notice.type' type='radio' value='mail' />
-										Via mail
-									</label>
+									<Field name='primary.notice.type' type='radio' value='mail' label='Via mail' />
 								</div>
 							</div>
 						</div>
