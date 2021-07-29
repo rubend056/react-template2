@@ -20,9 +20,9 @@
 			"webRoot": "${workspaceFolder}",
 			"pathMappings": [
 				{
-					"url": "file:///home/rubend/p/dls-website/src",
+					"url": "file:///home/rubend/p/react-template/src",
 					"path": "${workspaceFolder}/src"
-				},
+				}
 			]
 		},
 		{

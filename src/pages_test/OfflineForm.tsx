@@ -1,0 +1,242 @@
+import Form, { FieldArray, FormNameProvider, UseForm } from "@catoms/Form/Form";
+import Button from "@catoms/Button";
+import Icon from "@catoms/Icon";
+import Drawer, { DrawerToggle } from "@catoms/Drawer";
+import DrawerTogglePreset from "src/common/molecules/DrawerTogglePreset";
+import Divider from "src/common/atoms/Divider";
+import { Field } from "src/common/atoms/Form/Field";
+import { field_utils } from "src/common/atoms/Form/form_utils";
+import { FiX } from "react-icons/fi";
+import schema from "./OfflineForm_val";
+import GroupClose from "src/common/atoms/GroupClose";
+
+const Section = ({ content, name, ...props }) => {
+	return (
+		<div className='card' style={{ display: "flex", flexFlow: "row wrap", gap: ".5em" }} {...props}>
+			<h3 style={{ textAlign: "center", width: "100%" }}>{name}</h3>
+			{content}
+		</div>
+	);
+};
+const subsections = {
+	income: (
+		<FormNameProvider name='income'>
+			<Field name='income_type' label='Type of income' type='select' required>
+				<option value='employed'>Employed</option>
+				<option value='self_employed'>Self-employed</option>
+			</Field>
+			<Field name='income' label='Annual Income' {...field_utils.money} required />
+			<UseForm>
+				{({ getValueRel }) =>
+					getValueRel("income_type") === "employed" && (
+						<>
+							<Field name='employer.name' label='Employer Name' required />
+							<Field name='employer.phone' label='Employer Phone Number' {...field_utils.phone} required />
+						</>
+					)
+				}
+			</UseForm>
+		</FormNameProvider>
+	),
+};
+const sections = {
+	primary: {
+		name: "Primary",
+		content: (
+			<>
+				<FormNameProvider name='primary'>
+					<Field name='name' label='Customer Name' required />
+					<Field name='dob' label='Date of Birth' type='date' required />
+					<Field name='apply' label='Apply' type='checkbox' required />
+					<Field name='sex' type='select' label='Sex' required>
+						<option value='male'>Male</option>
+						<option value='female'>Female</option>
+					</Field>
+					<Field name='ssn' label='SSN' {...field_utils.ssn} />
+					<Field name='phone' label='Cell Phone' {...field_utils.phone} required />
+					<Field name='email' label='Email' required />
+					<FormNameProvider name='address'>
+						<Field name='address' label='Address' required />
+						<Field name='zip' label='Zip' required />
+						<Field name='city' label='City' required />
+						<Field name='state' label='State' required />
+					</FormNameProvider>
+					<Field name='migratory_status' label='Migratory Status' type='select' required>
+						<option value='resident'>Resident</option>
+						<option value='citizen'>Citizen</option>
+					</Field>
+					<Field name='recidence_number' label='Residence Card #' />
+				</FormNameProvider>
+			</>
+		),
+	},
+	income: {
+		name: "Income",
+		content: <>{subsections.income}</>,
+	},
+	household: {
+		name: "Household",
+		content: (
+			<>
+				<FormNameProvider name='household'>
+					<Field name='size' label='Family size' {...field_utils.number} required />
+					<Field name='applying' label='Family applying for coverage?' type='checkbox' required />
+					<Field name='income' label='Household Income' {...field_utils.money} required />
+
+					<FieldArray name='members'>
+						{({ arr, push, remove, Map }) => (
+							<>
+								<Divider style={{ width: "100%" }} />
+								{!arr?.length && <div className='border padding-3 text-align-center full-width'>No members</div>}
+								{Map({
+									className: "border padding-3",
+									style: { display: "flex", flexFlow: "row wrap" },
+									children: ({ value, index }) => (
+										<>
+											<div style={{ display: "flex", flexFlow: "row nowrap", width: "100%", gap: 10 }}>
+												<h4 style={{ flexGrow: 1, textAlign: "left" }}>
+													Member {index} - {value?.["name"] || ""}
+												</h4>
+												<Button button_type='icon' onClick={() => remove(index)}>
+													<Icon icon={FiX} />
+												</Button>
+											</div>
+
+											<Field name='name' label='Name' required />
+											<Field name='relation' label='Relation' type='select' required>
+												<option value='spouse'>Spouse</option>
+												<option value='dependent'>Dependent</option>
+											</Field>
+											<Field name='dob' label='Date of Birth' type='date' required />
+											<Field name='apply' label='Apply' type='checkbox' required />
+											<Field name='sex' type='select' label='Sex' required>
+												<option value='male'>Male</option>
+												<option value='female'>Female</option>
+											</Field>
+											<Field name='migratory_status' label='Migratory Status' type='select' required>
+												<option value='resident'>Resident</option>
+												<option value='citizen'>Citizen</option>
+											</Field>
+											<Field name='ssn' label='SSN' {...field_utils.ssn} />
+
+											<UseForm>
+												{({ getValueRel }) => getValueRel("relation") === "spouse" && subsections.income}
+											</UseForm>
+										</>
+									),
+								})}
+								<div style={{ display: "flex", flexFlow: "row nowrap", width: "100%", gap: 20, alignItems: "center" }}>
+									<Divider style={{ flex: "1 1 auto" }} />
+									<Button style={{ justifySelf: "end" }} onClick={() => push()}>
+										Add Member
+									</Button>
+								</div>
+							</>
+						)}
+					</FieldArray>
+				</FormNameProvider>
+			</>
+		),
+	},
+	plan: {
+		name: "Plan",
+		content: (
+			<>
+				<Field name='plan.selected' label='Plan Selected' required />
+				<Field name='plan.monthly' label='Monthly Payment' required {...field_utils.money} />
+			</>
+		),
+	},
+	payment_card: {
+		name: "Payment Card",
+		content: (
+			<>
+				<FormNameProvider name='payment_card'>
+					<Field name='number' label='Card Number' required {...field_utils.card_number} />
+					<Field name='expiration' label='Card Expiration' required {...field_utils.card_expiration} />
+					<Field name='cvv' label='CVV' required {...field_utils.card_cvv} />
+					{/* <GroupClose> */}
+					<Field name='first_name' label='Card First Name' required />
+					<Field name='middle_name' label='Card Middle Name' />
+					<Field name='last_name' label='Card Last Name' required />
+					{/* </GroupClose> */}
+				</FormNameProvider>
+			</>
+		),
+	},
+};
+
+const OfflineForm = (props) => {
+	return (
+		<Form validationSchema={schema}>
+			<Drawer
+				right
+				fixed
+				drawer={
+					<UseForm>
+						{({ state }) => (
+							<textarea
+								readOnly
+								value={JSON.stringify(state, null, 4)}
+								style={{
+									height: "100%",
+									width: "100%",
+								}}
+								className='background-background-active'
+							></textarea>
+						)}
+					</UseForm>
+				}
+				maxWidth={400}
+			>
+				<Drawer
+					fixed
+					floating
+					drawer={Object.entries(sections).map(([k, v]) => (
+						<Button
+							key={k}
+							className='full-width border-radius-0'
+							onClick={() => document?.getElementById(k)?.scrollIntoView({ block: "start", behavior: "smooth" })}
+						>
+							{/* {k
+										.replace(/_/g, " ")
+										.split(" ")
+										.map((s) => s[0].toUpperCase() + s.substr(1))
+										.join(" ")} */}
+							{v.name}
+						</Button>
+					))}
+					contentProps={{ style: { textAlign: "center" } }}
+				>
+					<div
+						style={{
+							display: "inline-flex",
+							// justifyContent: "center",
+							flexFlow: "column nowrap",
+							gap: 50,
+							maxWidth: 700,
+						}}
+						className='padding-4 padding-bottom-8'
+					>
+						{Object.entries(sections).map(([k, v], i) => Section({ ...v, id: k, key: i }))}
+						<UseForm>
+							{({ getValid }) => (
+								<Button className='full-width primary-background' onClick={() => console.log("Submit ", getValid())}>
+									Submit
+								</Button>
+							)}
+						</UseForm>
+					</div>
+
+					<DrawerTogglePreset style={{ position: "fixed", bottom: 12, left: 12 }} className='primary-background' />
+				</Drawer>
+				<DrawerToggle>
+					<Button style={{ position: "fixed", bottom: 12, right: 12 }} className='primary-background'>
+						FormState
+					</Button>
+				</DrawerToggle>
+			</Drawer>
+		</Form>
+	);
+};
+export default OfflineForm;

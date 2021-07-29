@@ -8,14 +8,18 @@ import { BsFillCaretLeftFill, BsJustify } from "react-icons/bs";
 import DrawerTogglePreset from "src/common/molecules/DrawerTogglePreset";
 import ThemeTogglePreset from "src/common/molecules/ThemeTogglePreset";
 import EDEForm from "./EDEForm";
+import OfflineForm from "./OfflineForm";
+
+const testPages = [
+	{comp:TestPage0, name: 'Test 0'},
+	{comp:EDEForm, name: 'EDE Form'},
+	{comp:OfflineForm, name: 'Offline Form'},
+].map((v, i) => {
+	return { route: `/${v.name.replace(/ /g, '_')}`, ...v };
+});
 
 const TestPages = (props) => {
-	const testPages = [
-		TestPage0,
-		EDEForm,
-	].map((v, i) => {
-		return { route: `/testPage${i}`, comp: v, name: v.name };
-	});
+	
 	const testLinks = testPages.map((v) => (
 		<Link to={v.route} key={v.route}>
 			<Button>{v.name}</Button>
@@ -34,7 +38,7 @@ const TestPages = (props) => {
 			<Drawer fixed
 				drawer={
 					<>
-						<Apply depth_max={-1} to={Button} className='width-full'>
+						<Apply depth_max={-1} to={Button} className='width-full' style={{borderRadius:0}}>
 							{DrawerTogglePreset({icon:BsFillCaretLeftFill})}
 							{testLinks}
 						</Apply>
@@ -51,11 +55,11 @@ const TestPages = (props) => {
 					middle={location.pathname}
 					right={<ThemeTogglePreset/>}
 				/>
-				<div>
+				
 				<Switch>
 					{testRoutes}
 				</Switch>
-				</div>
+				
 			</Drawer>
 		</>
 	);

@@ -3,13 +3,13 @@
 @import "~react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
 html {
-	scrollbar-width: thin;
-	scroll-behavior: smooth;
+	// scrollbar-width: thin;
+	// scroll-behavior: smooth;
 	overflow-x: hidden;
-	height: 100vh;
+	// height: 100vh;
 }
 body {
-	margin: 0 0 -8px;
+	// margin: 0 0 -8px;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
 		"Droid Sans", "Helvetica Neue", sans-serif;
 	-webkit-font-smoothing: antialiased;
@@ -41,7 +41,7 @@ html {
 }
 
 button {
-	padding: get-space(5);
+	padding: get-space(4);
 }
 button,
 input[type="button"],
@@ -72,26 +72,34 @@ input,
 select,
 textarea {
 	min-width: 30px;
+	
 	// height: max-content;
 	// width: max-content;
 	border: none;
 	font: inherit;
 	color: inherit;
 
-	border-radius: get-space(3);
+	border-radius: get-space(2);
 
 	background: rgba(#000, 0.05);
 	&:hover {
 		background: rgba(#000, 0.08);
 	}
 }
+input, select, textarea{
+	width:100%;
+	// max-width: 300px;
+}
+input,select{
+	height: fit-content;
+}
 
 .card {
 	transition: box-shadow 0.3s, background 0.3s;
 	background: rgba(white, 0.1);
-	border-radius: get-space(4);
+	border-radius: get-space(3);
 	box-shadow: get-theme-field(shadows, default);
-	padding: get-space(5);
+	padding: get-space(4);
 }
 
 .card-active {
@@ -119,14 +127,18 @@ textarea {
 .width-full {
 	width: 100%;
 }
+.full-height,
+.height-full{
+	min-height: 100%;
+}
 
 footer {
 	font-size: 0.8em;
-	margin: get-space(5) auto 0;
+	margin: get-space(4) auto 0;
 	// max-width: 800px;
 	// box-sizing: content-box;
-	padding: get-space(4) 5%;
-	padding-bottom: get-space(8);
+	padding: get-space(3) 5%;
+	padding-bottom: get-space(7);
 	background: get-color(primary, -4, 0.8);
 	color: white;
 }
@@ -147,6 +159,9 @@ footer {
 .center-div {
 	width: fit-content;
 	margin: auto;
+}
+.text-align-center{
+	text-align: center;
 }
 
 .space {
