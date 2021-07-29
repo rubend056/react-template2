@@ -4,7 +4,7 @@ import Drawer from "@catoms/Drawer";
 import Button from "@catoms/Button";
 
 import Image from "@catoms/Image";
-import DrawerTogglePreset from "src/common/molecules/DrawerTogglePreset";
+import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
 
 const TestPage0 = (props) => {
 	return (

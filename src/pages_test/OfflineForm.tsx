@@ -2,13 +2,13 @@ import Form, { FieldArray, FormNameProvider, UseForm } from "@catoms/Form/Form";
 import Button from "@catoms/Button";
 import Icon from "@catoms/Icon";
 import Drawer, { DrawerToggle } from "@catoms/Drawer";
-import DrawerTogglePreset from "src/common/molecules/DrawerTogglePreset";
-import Divider from "src/common/atoms/Divider";
-import { Field } from "src/common/atoms/Form/Field";
-import { field_utils } from "src/common/atoms/Form/form_utils";
+import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
+import Divider from "../common/atoms/Divider";
+import { Field } from "../common/atoms/Form/Field";
+import { field_utils } from "../common/atoms/Form/form_utils";
 import { FiX } from "react-icons/fi";
 import schema from "./OfflineForm_val";
-import GroupClose from "src/common/atoms/GroupClose";
+import GroupClose from "../common/atoms/GroupClose";
 
 const Section = ({ content, name, ...props }) => {
 	return (
@@ -153,7 +153,16 @@ const sections = {
 			<>
 				<FormNameProvider name='payment_card'>
 					<Field name='number' label='Card Number' required {...field_utils.card_number} />
-					<Field name='expiration' label='Card Expiration' required {...field_utils.card_expiration} />
+					<Field
+						name='expiration'
+						label={
+							<>
+								Card Expiration <b>mm/yy</b>
+							</>
+						}
+						required
+						{...field_utils.card_expiration}
+					/>
 					<Field name='cvv' label='CVV' required {...field_utils.card_cvv} />
 					{/* <GroupClose> */}
 					<Field name='first_name' label='Card First Name' required />

@@ -1,5 +1,5 @@
 import ThemeProvider from "@catoms/Theme";
-import { BrowserRouter as Router } from "react-router-dom";
+import { HashRouter as Router } from "react-router-dom";
 import TestPages from "./pages_test/TestPages";
 
 function Providers(children) {
@@ -10,7 +10,7 @@ function Providers(children) {
 	);
 }
 function Content() {
-  return <TestPages/>;
+	return <TestPages />;
 }
 
 function App() {

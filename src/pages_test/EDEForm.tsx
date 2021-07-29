@@ -3,17 +3,17 @@ import { Field } from "@catoms/Form/Field";
 import Form, { FieldArray, FormNameProvider, UseForm } from "@catoms/Form/Form";
 import Input from "@catoms/Form/Input";
 import Button from "@catoms/Button";
-import GroupClose from "src/common/atoms/GroupClose";
-import Apply from "src/common/atoms/HOC/Apply";
-import Icon from "src/common/atoms/Icon";
+import GroupClose from "../common/atoms/GroupClose";
+import Apply from "../common/atoms/HOC/Apply";
+import Icon from "../common/atoms/Icon";
 import { FiX } from "react-icons/fi";
 import * as z from "zod";
 import * as y from "yup";
-import Drawer, { DrawerToggle } from "src/common/atoms/Drawer";
-import DrawerTogglePreset from "src/common/molecules/DrawerTogglePreset";
+import Drawer, { DrawerToggle } from "../common/atoms/Drawer";
+import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
 import moment from "moment";
-import { setDefault } from "src/common/utils";
-import { field_utils, regex_dict } from "src/common/atoms/Form/form_utils";
+import { setDefault } from "../common/utils";
+import { field_utils, regex_dict } from "../common/atoms/Form/form_utils";
 
 y.addMethod(y.string, "assert", function (f: (v) => boolean, errorMessage) {
 	return this.test(`assert`, errorMessage, function (value) {
@@ -124,29 +124,29 @@ const sections = {
 						<div>
 							<div style={{ flexFlow: "row wrap", display: "flex", gap: 10 }}>
 								{Map({
-									className:'border padding-3 border-radius-2',
-									style:{ flex: "1 1 auto", position: "relative" },
-									children:(phone,i)=><>
-									<div style={{ fontSize: "1em", fontWeight: "bold" }} className='margin-bottom-3'>
-											Phone {i}
-										</div>
-										<Field name="number" label="Number" required {...field_utils.phone} />
-										<Field name="type" type='select' label='Type' required>
-											<option value='home'>Home</option>
-											<option value='cell'>Cell</option>
-											<option value='office'>Office</option>
-										</Field>
-										<Button
-											button_type='icon'
-											style={{ position: "absolute", top: 0, right: 0, padding: ".5em" }}
-											onClick={() => remove(i)}
-										>
-											<Icon icon={FiX} />
-										</Button>
-									</>
-								})
-										
-									}
+									className: "border padding-3 border-radius-2",
+									style: { flex: "1 1 auto", position: "relative" },
+									children: (phone, i) => (
+										<>
+											<div style={{ fontSize: "1em", fontWeight: "bold" }} className='margin-bottom-3'>
+												Phone {i}
+											</div>
+											<Field name='number' label='Number' required {...field_utils.phone} />
+											<Field name='type' type='select' label='Type' required>
+												<option value='home'>Home</option>
+												<option value='cell'>Cell</option>
+												<option value='office'>Office</option>
+											</Field>
+											<Button
+												button_type='icon'
+												style={{ position: "absolute", top: 0, right: 0, padding: ".5em" }}
+												onClick={() => remove(i)}
+											>
+												<Icon icon={FiX} />
+											</Button>
+										</>
+									),
+								})}
 							</div>
 							<div style={{ textAlign: "right" }} className='margin-v-2 margin-bottom-3'>
 								<Button onClick={() => push(undefined)}>Add Phone</Button>
@@ -160,8 +160,8 @@ const sections = {
 					<div className='col-12 col-6-tablet'>
 						<Field name='primary.notice.type' type='radio' value='paperless' label='Paperless' />
 						<UseForm>
-							{({getValue}) =>
-								getValue('primary.notice.type') === "paperless" && (
+							{({ getValue }) =>
+								getValue("primary.notice.type") === "paperless" && (
 									<div>
 										<Field type='checkbox' name='primary.notice.text' label='Text Me' />
 										<Field type='checkbox' name='primary.notice.email' label='Email Me' />
@@ -201,7 +201,7 @@ const sections = {
 				<FormNameProvider name='primary.address_mail'>
 					<UseForm>
 						{({ getValue }) =>
-							!setDefault(getValue('primary.address_is_mail'), true) && (
+							!setDefault(getValue("primary.address_is_mail"), true) && (
 								<>
 									<Field name='line1' label='Address' />
 									<Field name='line2' label='Apartment, suite, etc.' />
@@ -250,13 +250,13 @@ const sections = {
 const EDEForm = () => {
 	return (
 		<Form validationSchema={schemayup}>
-			
-					<Drawer
-						right
-						fixed
-						drawer={
-							<UseForm>
-							{({state}) => <textarea
+			<Drawer
+				right
+				fixed
+				drawer={
+					<UseForm>
+						{({ state }) => (
+							<textarea
 								readOnly
 								value={JSON.stringify(state, null, 2)}
 								style={{
@@ -264,51 +264,52 @@ const EDEForm = () => {
 									width: "100%",
 								}}
 								className='background-background-active'
-							></textarea>}
-							</UseForm>
-						}
-						maxWidth={400}
-					>
-						<Drawer
-							fixed
-							floating
-							drawer={Object.entries(sections).map(([k, v]) => (
-								<Button
-									key={k}
-									className='full-width border-radius-0'
-									onClick={() => document?.getElementById(k)?.scrollIntoView({ block: "start", behavior: "smooth" })}
-								>
-									{/* {k
+							></textarea>
+						)}
+					</UseForm>
+				}
+				maxWidth={400}
+			>
+				<Drawer
+					fixed
+					floating
+					drawer={Object.entries(sections).map(([k, v]) => (
+						<Button
+							key={k}
+							className='full-width border-radius-0'
+							onClick={() => document?.getElementById(k)?.scrollIntoView({ block: "start", behavior: "smooth" })}
+						>
+							{/* {k
 										.replace(/_/g, " ")
 										.split(" ")
 										.map((s) => s[0].toUpperCase() + s.substr(1))
 										.join(" ")} */}
-									{v.name}
-								</Button>
-							))}
-							contentProps={{ style: { textAlign: "center" } }}
-						>
-							<div
-								style={{
-									display: "inline-flex",
-									justifyContent: "center",
-									flexFlow: "column nowrap",
-									gap: 50,
-									maxWidth: 700,
-								}}
-								className='padding-4 padding-bottom-8'
-							>
-								{Object.entries(sections).map(([k, v], i) => Section({ ...v, id: k, key: i }))}
-							</div>
+							{v.name}
+						</Button>
+					))}
+					contentProps={{ style: { textAlign: "center" } }}
+				>
+					<div
+						style={{
+							display: "inline-flex",
+							justifyContent: "center",
+							flexFlow: "column nowrap",
+							gap: 50,
+							maxWidth: 700,
+						}}
+						className='padding-4 padding-bottom-8'
+					>
+						{Object.entries(sections).map(([k, v], i) => Section({ ...v, id: k, key: i }))}
+					</div>
 
-							<DrawerTogglePreset style={{ position: "fixed", bottom: 12, left: 12 }} className='primary-background' />
-						</Drawer>
-						<DrawerToggle>
-							<Button style={{ position: "fixed", bottom: 12, right: 12 }} className='primary-background'>
-								FormState
-							</Button>
-						</DrawerToggle>
-					</Drawer>
+					<DrawerTogglePreset style={{ position: "fixed", bottom: 12, left: 12 }} className='primary-background' />
+				</Drawer>
+				<DrawerToggle>
+					<Button style={{ position: "fixed", bottom: 12, right: 12 }} className='primary-background'>
+						FormState
+					</Button>
+				</DrawerToggle>
+			</Drawer>
 		</Form>
 	);
 };
