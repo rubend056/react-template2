@@ -1,4 +1,4 @@
-import { regex_dict } from "@catoms/Form/form_utils";
+import { regex_dict } from "@common/atoms/Form/form_utils";
 import moment from "moment";
 import * as y from "yup";
 

@@ -2,11 +2,6 @@
 	"compilerOptions": {
 		"baseUrl": "./src",
 		"paths": {
-			"@src/*":["./*"],
-			"@atoms/*":["components/atoms/*"],
-			"@comps/*":["components/*"],
-			"@catoms/*":["common/atoms/*"],
-			"@styles/*":["common/styles/*"],
 			"@common/*":["common/*"]
 		}
 	}

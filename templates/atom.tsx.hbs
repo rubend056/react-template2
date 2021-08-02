@@ -1,10 +1,10 @@
 import React, { ReactNode } from "react";
 import s from './{{pascalCase name}}.module.scss';
-import { useTheme } from "@catoms/Theme";
-import { classNameFind } from "@common/utils";
+import { useTheme } from "@common/atoms/Theme";
+import { cnf } from "@common/utils";
 
 export interface {{pascalCase name}}Props{
-	children?: ReactNode;
+	children?: ReactNode | undefined;
 }
 
 const {{pascalCase name}} = ({
@@ -12,8 +12,8 @@ const {{pascalCase name}} = ({
 	children,
 	...props
 }: {{pascalCase name}}Props & React.HTMLAttributes<HTMLDivElement>) => {
-	const theme = useTheme();
-	className = classNameFind(s, `comp`, theme.name, className);
+	const theme = useTheme().name;
+	className = cnf(s, `comp`, theme, className);
 
 	return (
 		<div className={className} {...props}>

@@ -1,19 +1,16 @@
-import Divider from "@catoms/Divider";
-import { Field } from "@catoms/Form/Field";
-import Form, { FieldArray, FormNameProvider, UseForm } from "@catoms/Form/Form";
-import Input from "@catoms/Form/Input";
-import Button from "@catoms/Button";
-import GroupClose from "../common/atoms/GroupClose";
-import Apply from "../common/atoms/HOC/Apply";
-import Icon from "../common/atoms/Icon";
+import Button from "@common/atoms/Button";
+import Divider from "@common/atoms/Divider";
+import { Field } from "@common/atoms/Form/Field";
+import Form, { FieldArray, FormNameProvider, UseForm } from "@common/atoms/Form/Form";
+import moment from "moment";
 import { FiX } from "react-icons/fi";
-import * as z from "zod";
 import * as y from "yup";
 import Drawer, { DrawerToggle } from "../common/atoms/Drawer";
-import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
-import moment from "moment";
-import { setDefault } from "../common/utils";
 import { field_utils, regex_dict } from "../common/atoms/Form/form_utils";
+import GroupClose from "../common/atoms/GroupClose";
+import Icon from "../common/atoms/Icon";
+import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
+import { setDefault } from "../common/utils";
 
 y.addMethod(y.string, "assert", function (f: (v) => boolean, errorMessage) {
 	return this.test(`assert`, errorMessage, function (value) {
@@ -22,40 +19,40 @@ y.addMethod(y.string, "assert", function (f: (v) => boolean, errorMessage) {
 	});
 });
 
-const schema = z
-	.object({
-		primary: z
-			.object({
-				first: z
-					.string()
-					.min(1)
-					.regex(/^[A-Za-z ]*$/, "Only words"),
-				middle: z
-					.string()
-					.regex(/^[A-Za-z ]*$/, "Only words")
-					.optional(),
-				last: z
-					.string()
-					.min(1)
-					.regex(/^[A-Za-z ]*$/, "Only words"),
-				sex: z.string().optional(),
-				dob: z.string().refine((s) => moment().diff(s, "years") >= 18, "Primary must be 18+"),
-				tobacco: z.boolean().default(false),
-				email: z.string().email(),
-				phones: z
-					.array(
-						z
-							.object({
-								number: z.string().regex(regex_dict.phone, "Not a phone"),
-								type: z.union([z.literal("cell"), z.literal("home"), z.literal("office")]).default("cell"),
-							})
-							.passthrough()
-					)
-					.nonempty(),
-			})
-			.passthrough(),
-	})
-	.passthrough();
+// const schema = z
+// 	.object({
+// 		primary: z
+// 			.object({
+// 				first: z
+// 					.string()
+// 					.min(1)
+// 					.regex(/^[A-Za-z ]*$/, "Only words"),
+// 				middle: z
+// 					.string()
+// 					.regex(/^[A-Za-z ]*$/, "Only words")
+// 					.optional(),
+// 				last: z
+// 					.string()
+// 					.min(1)
+// 					.regex(/^[A-Za-z ]*$/, "Only words"),
+// 				sex: z.string().optional(),
+// 				dob: z.string().refine((s) => moment().diff(s, "years") >= 18, "Primary must be 18+"),
+// 				tobacco: z.boolean().default(false),
+// 				email: z.string().email(),
+// 				phones: z
+// 					.array(
+// 						z
+// 							.object({
+// 								number: z.string().regex(regex_dict.phone, "Not a phone"),
+// 								type: z.union([z.literal("cell"), z.literal("home"), z.literal("office")]).default("cell"),
+// 							})
+// 							.passthrough()
+// 					)
+// 					.nonempty(),
+// 			})
+// 			.passthrough(),
+// 	})
+// 	.passthrough();
 const schemayup = y.object({
 	primary: y.object({
 		first: y

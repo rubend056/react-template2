@@ -1,14 +1,13 @@
-import Form, { FieldArray, FormNameProvider, UseForm } from "@catoms/Form/Form";
-import Button from "@catoms/Button";
-import Icon from "@catoms/Icon";
-import Drawer, { DrawerToggle } from "@catoms/Drawer";
-import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
+import Button from "@common/atoms/Button";
+import Drawer, { DrawerToggle } from "@common/atoms/Drawer";
+import Form, { FieldArray, FormNameProvider, UseForm } from "@common/atoms/Form/Form";
+import Icon from "@common/atoms/Icon";
+import { FiX } from "react-icons/fi";
 import Divider from "../common/atoms/Divider";
 import { Field } from "../common/atoms/Form/Field";
 import { field_utils } from "../common/atoms/Form/form_utils";
-import { FiX } from "react-icons/fi";
+import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
 import schema from "./OfflineForm_val";
-import GroupClose from "../common/atoms/GroupClose";
 
 const Section = ({ content, name, ...props }) => {
 	return (
