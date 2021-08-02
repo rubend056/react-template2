@@ -12,11 +12,13 @@ import { LineChart, Pie, PieChart } from "recharts";
 
 const testData = [2, 3, 2, 4, 3, 5, 6, 5, 3].map((v) => ({ v }));
 const Dashboard = (props) => {
-	<div style={{ display: "flex", flexFlow: "row wrap", gap: "1em" }}>
-		<PieChart width={400} height={400} className='card'>
-			<Pie data={testData} dataKey='v' />
-		</PieChart>
-	</div>;
+	return (
+		<div style={{ display: "flex", flexFlow: "row wrap", gap: "1em" }}>
+			<PieChart width={400} height={400} className='card'>
+				<Pie data={testData} dataKey='v' />
+			</PieChart>
+		</div>
+	);
 };
 
 export interface DashboardProps {
@@ -99,7 +101,7 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 
 	return (
 		<div className={className}>
-			<Route path={paths.dashboard} component={} />
+			<Route path={paths.dashboard} component={Dashboard} />
 		</div>
 	);
 };

@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 
 const ReduxTest = () => {
-	const test = useSelector();
+	// const test = useSelector();
 	return <div>Redux</div>;
 };
 
