@@ -2,6 +2,7 @@ import Button from "@common/atoms/Button";
 import Drawer from "@common/atoms/Drawer";
 import Apply from "@common/atoms/HOC/Apply";
 import Toolbar from "@common/organisms/Toolbar";
+import Portal from "../components/pages/Portal";
 import { BsFillCaretLeftFill, BsJustify } from "react-icons/bs";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
@@ -14,6 +15,7 @@ const testPages = [
 	{ comp: TestPage0, name: "Test 0" },
 	{ comp: EDEForm, name: "EDE Form" },
 	{ comp: OfflineForm, name: "Offline Form" },
+	{ comp: Portal, name: "Portal" },
 ].map((v, i) => {
 	return { route: `/${v.name.replace(/ /g, "_")}`, ...v };
 });

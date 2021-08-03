@@ -2,6 +2,7 @@ import Button from "@common/atoms/Button";
 import Drawer, { DrawerToggle } from "@common/atoms/Drawer";
 import Form, { FieldArray, FormNameProvider, UseForm } from "@common/atoms/Form/Form";
 import Icon from "@common/atoms/Icon";
+import { useNotifications } from "@common/atoms/Notifications";
 import { FiX } from "react-icons/fi";
 import Divider from "../common/atoms/Divider";
 import { Field } from "../common/atoms/Form/Field";
@@ -20,7 +21,7 @@ const Section = ({ content, name, ...props }) => {
 const subsections = {
 	income: (
 		<FormNameProvider name='income'>
-			<Field name='income_type' label='Type of income' type='select' required>
+			<Field name='income_type' label='Type of income' type='select' placeholder='' required>
 				<option value='employed'>Employed</option>
 				<option value='self_employed'>Self-employed</option>
 			</Field>
@@ -47,7 +48,7 @@ const sections = {
 					<Field name='name' label='Customer Name' required />
 					<Field name='dob' label='Date of Birth' type='date' required />
 					<Field name='apply' label='Apply' type='checkbox' required />
-					<Field name='sex' type='select' label='Sex' required>
+					<Field name='sex' type='select' label='Sex' placeholder='' required>
 						<option value='male'>Male</option>
 						<option value='female'>Female</option>
 					</Field>
@@ -60,7 +61,7 @@ const sections = {
 						<Field name='city' label='City' required />
 						<Field name='state' label='State' required />
 					</FormNameProvider>
-					<Field name='migratory_status' label='Migratory Status' type='select' required>
+					<Field name='migratory_status' label='Migratory Status' type='select' placeholder='' required>
 						<option value='resident'>Resident</option>
 						<option value='citizen'>Citizen</option>
 					</Field>
@@ -102,7 +103,7 @@ const sections = {
 											</div>
 
 											<Field name='name' label='Name' required />
-											<Field name='relation' label='Relation' type='select' required>
+											<Field name='relation' label='Relation' type='select' placeholder='' required>
 												<option value='spouse'>Spouse</option>
 												<option value='dependent'>Dependent</option>
 											</Field>
@@ -112,7 +113,7 @@ const sections = {
 												<option value='male'>Male</option>
 												<option value='female'>Female</option>
 											</Field>
-											<Field name='migratory_status' label='Migratory Status' type='select' required>
+											<Field name='migratory_status' label='Migratory Status' type='select' placeholder='' required>
 												<option value='resident'>Resident</option>
 												<option value='citizen'>Citizen</option>
 											</Field>
@@ -175,8 +176,17 @@ const sections = {
 };
 
 const OfflineForm = (props) => {
+	const nots = useNotifications();
+	const onSubmit = (vals) => {
+		if (vals) {
+			console.log("Submit ", vals);
+			nots.addNotification({ text: "Sucessfully Submitted!" });
+		} else {
+			nots.addNotification({ type: "error", text: "Submit failed, form errors" });
+		}
+	};
 	return (
-		<Form validationSchema={schema}>
+		<Form validationSchema={schema} submit={onSubmit}>
 			<Drawer
 				right
 				fixed
@@ -228,8 +238,8 @@ const OfflineForm = (props) => {
 					>
 						{Object.entries(sections).map(([k, v], i) => Section({ ...v, id: k, key: i }))}
 						<UseForm>
-							{({ getValid }) => (
-								<Button className='full-width primary-background' onClick={() => console.log("Submit ", getValid())}>
+							{({ submit }) => (
+								<Button className='full-width primary-background' onClick={() => submit()}>
 									Submit
 								</Button>
 							)}
