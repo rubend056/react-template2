@@ -1,3 +1,4 @@
+import { objectEntries } from "@common/utils";
 import {
 	createSlice,
 	createAsyncThunk,
@@ -46,12 +47,6 @@ export interface CommonActions {
 //     <U extends keyof T, T extends object>(key: U) =>
 //     (obj: T) =>
 //         obj[key];
-type Entries<T> = {
-	[K in keyof T]: [K, T[K]];
-}[keyof T][];
-function objectEntries<T>(obj: T): Entries<T> {
-	return Object.entries(obj) as any;
-}
 
 const createAPIEndpoint = <E, T>(
 	endpointName: string,

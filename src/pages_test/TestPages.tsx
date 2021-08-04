@@ -10,12 +10,14 @@ import ThemeTogglePreset from "../common/molecules/ThemeTogglePreset";
 import TestPage0 from "../pages_test/TestPage0";
 import EDEForm from "./EDEForm";
 import OfflineForm from "./OfflineForm";
+import APITest from "./APITest";
 
 const testPages = [
 	{ comp: TestPage0, name: "Test 0" },
 	{ comp: EDEForm, name: "EDE Form" },
 	{ comp: OfflineForm, name: "Offline Form" },
 	{ comp: Portal, name: "Portal" },
+	{ comp: APITest, name: "API Test" },
 ].map((v, i) => {
 	return { route: `/${v.name.replace(/ /g, "_")}`, ...v };
 });

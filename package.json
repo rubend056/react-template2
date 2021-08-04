@@ -4,6 +4,8 @@
   "private": true,
   "homepage": "http://rubend056.github.io/react-template2",
   "dependencies": {
+    "@react-rxjs/core": "^0.8.2",
+    "@react-rxjs/utils": "^0.9.1",
     "@reduxjs/toolkit": "^1.6.1",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
@@ -31,6 +33,7 @@
     "react-scripts": "^4.0.3",
     "react-table": "^7.7.0",
     "recharts": "^2.0.10",
+    "rxjs": "^7.3.0",
     "sass": "^1.35.2",
     "typescript": "^4.3.5",
     "web-vitals": "^1.1.2",

@@ -20,22 +20,22 @@ const Section = ({ content, name, ...props }) => {
 };
 const subsections = {
 	income: (
-		<FormNameProvider name='income'>
+		<FormNameProvider name=''>
 			<Field name='income_type' label='Type of income' type='select' placeholder='' required>
 				<option value='employed'>Employed</option>
 				<option value='self_employed'>Self-employed</option>
 			</Field>
 			<Field name='income' label='Annual Income' {...field_utils.money} required />
-			<UseForm>
+			{/* <UseForm>
 				{({ getValueRel }) =>
-					getValueRel("income_type") === "employed" && (
-						<>
-							<Field name='employer.name' label='Employer Name' required />
-							<Field name='employer.phone' label='Employer Phone Number' {...field_utils.phone} required />
-						</>
-					)
+					getValueRel("income_type") === "employed" && ( */}
+			<>
+				<Field name='e_name' label='Employer Name' required />
+				<Field name='e_phone' label='Employer Phone Number' {...field_utils.phone} required />
+			</>
+			{/* )
 				}
-			</UseForm>
+			</UseForm> */}
 		</FormNameProvider>
 	),
 };
@@ -44,7 +44,7 @@ const sections = {
 		name: "Primary",
 		content: (
 			<>
-				<FormNameProvider name='primary'>
+				<FormNameProvider name=''>
 					<Field name='name' label='Customer Name' required />
 					<Field name='dob' label='Date of Birth' type='date' required />
 					<Field name='apply' label='Apply' type='checkbox' required />
@@ -55,7 +55,7 @@ const sections = {
 					<Field name='ssn' label='SSN' {...field_utils.ssn} />
 					<Field name='phone' label='Cell Phone' {...field_utils.phone} required />
 					<Field name='email' label='Email' required />
-					<FormNameProvider name='address'>
+					<FormNameProvider name=''>
 						<Field name='address' label='Address' required />
 						<Field name='zip' label='Zip' required />
 						<Field name='city' label='City' required />
@@ -78,12 +78,12 @@ const sections = {
 		name: "Household",
 		content: (
 			<>
-				<FormNameProvider name='household'>
-					<Field name='size' label='Family size' {...field_utils.number} required />
-					<Field name='applying' label='Family applying for coverage?' type='checkbox' required />
-					<Field name='income' label='Household Income' {...field_utils.money} required />
+				<FormNameProvider name=''>
+					<Field name='h_size' label='Family size' {...field_utils.number} required />
+					<Field name='h_applying' label='Family applying for coverage?' type='checkbox' required />
+					<Field name='h_income' label='Household Income' {...field_utils.money} required />
 
-					<FieldArray name='members'>
+					<FieldArray name='h_members'>
 						{({ arr, push, remove, Map }) => (
 							<>
 								<Divider style={{ width: "100%" }} />
@@ -109,7 +109,7 @@ const sections = {
 											</Field>
 											<Field name='dob' label='Date of Birth' type='date' required />
 											<Field name='apply' label='Apply' type='checkbox' required />
-											<Field name='sex' type='select' label='Sex' required>
+											<Field name='sex' type='select' label='Sex' placeholder='' required>
 												<option value='male'>Male</option>
 												<option value='female'>Female</option>
 											</Field>
@@ -142,8 +142,8 @@ const sections = {
 		name: "Plan",
 		content: (
 			<>
-				<Field name='plan.selected' label='Plan Selected' required />
-				<Field name='plan.monthly' label='Monthly Payment' required {...field_utils.money} />
+				<Field name='p_selected' label='Plan Selected' required />
+				<Field name='p_monthly' label='Monthly Payment' required {...field_utils.money} />
 			</>
 		),
 	},
@@ -151,8 +151,8 @@ const sections = {
 		name: "Payment Card",
 		content: (
 			<>
-				<FormNameProvider name='payment_card'>
-					<Field name='number' label='Card Number' required {...field_utils.card_number} />
+				<FormNameProvider name=''>
+					<Field name='c_number' label='Card Number' required {...field_utils.card_number} />
 					<Field
 						name='expiration'
 						label={
@@ -163,11 +163,11 @@ const sections = {
 						required
 						{...field_utils.card_expiration}
 					/>
-					<Field name='cvv' label='CVV' required {...field_utils.card_cvv} />
+					<Field name='c_cvv' label='CVV' required {...field_utils.card_cvv} />
 					{/* <GroupClose> */}
-					<Field name='first_name' label='Card First Name' required />
-					<Field name='middle_name' label='Card Middle Name' />
-					<Field name='last_name' label='Card Last Name' required />
+					<Field name='c_first_name' label='Card First Name' required />
+					<Field name='c_middle_name' label='Card Middle Name' />
+					<Field name='c_last_name' label='Card Last Name' required />
 					{/* </GroupClose> */}
 				</FormNameProvider>
 			</>
@@ -236,7 +236,9 @@ const OfflineForm = (props) => {
 						}}
 						className='padding-4 padding-bottom-8'
 					>
-						{Object.entries(sections).map(([k, v], i) => Section({ ...v, id: k, key: i }))}
+						<FormNameProvider name='offapp'>
+							{Object.entries(sections).map(([k, v], i) => Section({ ...v, id: k, key: i }))}
+						</FormNameProvider>
 						<UseForm>
 							{({ submit }) => (
 								<Button className='full-width primary-background' onClick={() => submit()}>
