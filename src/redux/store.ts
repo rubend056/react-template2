@@ -5,7 +5,7 @@ interface Entity extends BaseEntity {
 	id: string;
 	name: string;
 }
-const cities = createAPIEndpoint<Entity, {}>("cities", "/api/cities");
+const cities = createAPIEndpoint<Entity, {}>("cities", "/cities");
 
 // const slice = createSlice({
 // 	initialState: 0,

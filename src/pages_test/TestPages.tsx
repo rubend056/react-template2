@@ -19,7 +19,7 @@ const testPages = [
 	{ comp: Portal, name: "Portal" },
 	{ comp: APITest, name: "API Test" },
 ].map((v, i) => {
-	return { route: `/${v.name.replace(/ /g, "_")}`, ...v };
+	return { route: `/${v.name.replace(/ /g, "_").toLowerCase()}`, ...v };
 });
 
 const TestPages = (props) => {
@@ -42,12 +42,13 @@ const TestPages = (props) => {
 					<>
 						<Apply depth_max={-1} to={Button} className='width-full' style={{ borderRadius: 0 }}>
 							{DrawerTogglePreset({ icon: BsFillCaretLeftFill })}
+							<ThemeTogglePreset />
 							{testLinks}
 						</Apply>
 					</>
 				}
 			>
-				<Toolbar
+				{/* <Toolbar
 					left={
 						<>
 							<DrawerTogglePreset icon={BsJustify} />
@@ -56,9 +57,10 @@ const TestPages = (props) => {
 					}
 					middle={location.pathname}
 					right={<ThemeTogglePreset />}
-				/>
+				/> */}
 
 				<Switch>{testRoutes}</Switch>
+				<DrawerTogglePreset icon={BsJustify} style={{ position: "fixed", left: 10, bottom: 10 }} />
 			</Drawer>
 		</>
 	);

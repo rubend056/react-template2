@@ -3,12 +3,15 @@ import Drawer, { DrawerToggle } from "@common/atoms/Drawer";
 import Form, { FieldArray, FormNameProvider, UseForm } from "@common/atoms/Form/Form";
 import Icon from "@common/atoms/Icon";
 import { useNotifications } from "@common/atoms/Notifications";
+import { useEffect } from "react";
 import { FiX } from "react-icons/fi";
+import { setApi_OfflineAppPostQuery, useApi_OfflineAppPost } from "../rxjs/observables";
+import { scrollToElement } from "@common/utils_react";
 import Divider from "../common/atoms/Divider";
 import { Field } from "../common/atoms/Form/Field";
 import { field_utils } from "../common/atoms/Form/form_utils";
 import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
-import schema from "./OfflineForm_val";
+import schema, { stateLabelValues } from "./OfflineForm_val";
 
 const Section = ({ content, name, ...props }) => {
 	return (
@@ -21,21 +24,37 @@ const Section = ({ content, name, ...props }) => {
 const subsections = {
 	income: (
 		<FormNameProvider name=''>
-			<Field name='income_type' label='Type of income' type='select' placeholder='' required>
+			<Field name='typeOfIncome' label='Type of income' type='select' placeholder='' required>
 				<option value='employed'>Employed</option>
 				<option value='self_employed'>Self-employed</option>
 			</Field>
-			<Field name='income' label='Annual Income' {...field_utils.money} required />
+			<Field name='annualIncome' label='Annual Income' {...field_utils.money} required />
 			{/* <UseForm>
 				{({ getValueRel }) =>
 					getValueRel("income_type") === "employed" && ( */}
 			<>
-				<Field name='e_name' label='Employer Name' required />
-				<Field name='e_phone' label='Employer Phone Number' {...field_utils.phone} required />
+				<Field name='employerName' label='Employer Name' required />
+				<Field name='employerPhone' label='Employer Phone Number' {...field_utils.phone} required />
 			</>
 			{/* )
 				}
 			</UseForm> */}
+		</FormNameProvider>
+	),
+	basic: (
+		<FormNameProvider name=''>
+			<Field name='name' label='Name' required />
+			<Field name='dob' label='Date of Birth' type='date' required />
+			<Field name='apply' label='Apply' type='checkbox' required />
+			<Field name='sex' type='select' label='Sex' placeholder='' required>
+				<option value='M'>Male</option>
+				<option value='F'>Female</option>
+			</Field>
+			<Field name='ssn' label='SSN' {...field_utils.ssn} />
+			<Field name='migratoryStatus' label='Migratory Status' type='select' placeholder='' required>
+				<option value='resident'>Resident</option>
+				<option value='citizen'>Citizen</option>
+			</Field>
 		</FormNameProvider>
 	),
 };
@@ -45,27 +64,21 @@ const sections = {
 		content: (
 			<>
 				<FormNameProvider name=''>
-					<Field name='name' label='Customer Name' required />
-					<Field name='dob' label='Date of Birth' type='date' required />
-					<Field name='apply' label='Apply' type='checkbox' required />
-					<Field name='sex' type='select' label='Sex' placeholder='' required>
-						<option value='male'>Male</option>
-						<option value='female'>Female</option>
-					</Field>
-					<Field name='ssn' label='SSN' {...field_utils.ssn} />
+					{subsections.basic}
 					<Field name='phone' label='Cell Phone' {...field_utils.phone} required />
 					<Field name='email' label='Email' required />
 					<FormNameProvider name=''>
 						<Field name='address' label='Address' required />
-						<Field name='zip' label='Zip' required />
+						{/* <Field name='zip' label='Zip' required /> */}
 						<Field name='city' label='City' required />
-						<Field name='state' label='State' required />
+						<Field name='state' type='select' label='State' placeholder='' required>
+							{stateLabelValues.map((s) => (
+								<option value={s.value}>{s.label}</option>
+							))}
+						</Field>
 					</FormNameProvider>
-					<Field name='migratory_status' label='Migratory Status' type='select' placeholder='' required>
-						<option value='resident'>Resident</option>
-						<option value='citizen'>Citizen</option>
-					</Field>
-					<Field name='recidence_number' label='Residence Card #' />
+
+					<Field name='residenceCardNumber' label='Residence Card #' />
 				</FormNameProvider>
 			</>
 		),
@@ -79,11 +92,11 @@ const sections = {
 		content: (
 			<>
 				<FormNameProvider name=''>
-					<Field name='h_size' label='Family size' {...field_utils.number} required />
-					<Field name='h_applying' label='Family applying for coverage?' type='checkbox' required />
-					<Field name='h_income' label='Household Income' {...field_utils.money} required />
+					<Field name='totalMembers' label='Family size' {...field_utils.number} required />
+					<Field name='applyingForCoverage' label='Family applying for coverage?' type='checkbox' required />
+					<Field name='annualHouseholdIncome' label='Household Income' {...field_utils.money} required />
 
-					<FieldArray name='h_members'>
+					<FieldArray name='offlineAppMembers'>
 						{({ arr, push, remove, Map }) => (
 							<>
 								<Divider style={{ width: "100%" }} />
@@ -102,22 +115,13 @@ const sections = {
 												</Button>
 											</div>
 
-											<Field name='name' label='Name' required />
 											<Field name='relation' label='Relation' type='select' placeholder='' required>
 												<option value='spouse'>Spouse</option>
 												<option value='dependent'>Dependent</option>
 											</Field>
-											<Field name='dob' label='Date of Birth' type='date' required />
-											<Field name='apply' label='Apply' type='checkbox' required />
-											<Field name='sex' type='select' label='Sex' placeholder='' required>
-												<option value='male'>Male</option>
-												<option value='female'>Female</option>
-											</Field>
-											<Field name='migratory_status' label='Migratory Status' type='select' placeholder='' required>
-												<option value='resident'>Resident</option>
-												<option value='citizen'>Citizen</option>
-											</Field>
-											<Field name='ssn' label='SSN' {...field_utils.ssn} />
+
+											{/* BASIC */}
+											{subsections.basic}
 
 											<UseForm>
 												{({ getValueRel }) => getValueRel("relation") === "spouse" && subsections.income}
@@ -142,8 +146,8 @@ const sections = {
 		name: "Plan",
 		content: (
 			<>
-				<Field name='p_selected' label='Plan Selected' required />
-				<Field name='p_monthly' label='Monthly Payment' required {...field_utils.money} />
+				<Field name='planSelected' label='Plan Selected' required />
+				<Field name='monthlyPayment' label='Monthly Payment' required {...field_utils.money} />
 			</>
 		),
 	},
@@ -152,9 +156,9 @@ const sections = {
 		content: (
 			<>
 				<FormNameProvider name=''>
-					<Field name='c_number' label='Card Number' required {...field_utils.card_number} />
+					<Field name='cardNumber' label='Card Number' required {...field_utils.card_number} />
 					<Field
-						name='expiration'
+						name='cardExpDate'
 						label={
 							<>
 								Card Expiration <b>mm/yy</b>
@@ -163,11 +167,11 @@ const sections = {
 						required
 						{...field_utils.card_expiration}
 					/>
-					<Field name='c_cvv' label='CVV' required {...field_utils.card_cvv} />
+					<Field name='cardCvv' label='CVV' required {...field_utils.card_cvv} />
 					{/* <GroupClose> */}
-					<Field name='c_first_name' label='Card First Name' required />
-					<Field name='c_middle_name' label='Card Middle Name' />
-					<Field name='c_last_name' label='Card Last Name' required />
+					<Field name='cardFirstName' label='Card First Name' required />
+					<Field name='cardMiddleName' label='Card Middle Name' />
+					<Field name='cardLastName' label='Card Last Name' required />
 					{/* </GroupClose> */}
 				</FormNameProvider>
 			</>
@@ -177,17 +181,30 @@ const sections = {
 
 const OfflineForm = (props) => {
 	const nots = useNotifications();
+	const offlineFormPost = useApi_OfflineAppPost();
+
+	useEffect(() => {
+		if (offlineFormPost) {
+			if (!offlineFormPost.errors) {
+				nots.addNotification({ text: "Form successfully submitted!" });
+			} else if (offlineFormPost.errors) {
+				nots.addNotification({ type: "error", text: `Form submission error: ${offlineFormPost.message}` });
+			}
+		}
+	}, [offlineFormPost]);
+
 	const onSubmit = (vals) => {
 		if (vals) {
-			console.log("Submit ", vals);
-			nots.addNotification({ text: "Sucessfully Submitted!" });
+			console.log("Submitting ", vals);
+			nots.addNotification({ text: "Validation passed, submitting!" });
+			setApi_OfflineAppPostQuery(vals);
 		} else {
-			nots.addNotification({ type: "error", text: "Submit failed, form errors" });
+			nots.addNotification({ type: "error", text: "Validation failed, form errors!" });
 		}
 	};
 	return (
-		<Form validationSchema={schema} submit={onSubmit}>
-			<Drawer
+		<Form validationSchema={schema} onSubmit={onSubmit}>
+			{/* <Drawer
 				right
 				fixed
 				drawer={
@@ -214,48 +231,54 @@ const OfflineForm = (props) => {
 						<Button
 							key={k}
 							className='full-width border-radius-0'
-							onClick={() => document?.getElementById(k)?.scrollIntoView({ block: "start", behavior: "smooth" })}
+							onClick={() => {
+								scrollToElement(document?.getElementById(k), { offset: -80 });
+							}}
 						>
-							{/* {k
-										.replace(/_/g, " ")
-										.split(" ")
-										.map((s) => s[0].toUpperCase() + s.substr(1))
-										.join(" ")} */}
 							{v.name}
 						</Button>
 					))}
 					contentProps={{ style: { textAlign: "center" } }}
+				> */}
+			{/* <DrawerTogglePreset
+						style={{ position: "sticky", display: "inline-block", top: "50%", transform: "translateY(-50%)", left: 12 }}
+						className='primary-background'
+					/> */}
+			<div style={{ textAlign: "center" }}>
+				<div
+					style={{
+						display: "inline-flex",
+						// justifyContent: "center",
+						flexFlow: "column nowrap",
+						gap: 50,
+						maxWidth: 700,
+					}}
+					className='padding-4 padding-bottom-8'
 				>
-					<div
-						style={{
-							display: "inline-flex",
-							// justifyContent: "center",
-							flexFlow: "column nowrap",
-							gap: 50,
-							maxWidth: 700,
-						}}
-						className='padding-4 padding-bottom-8'
-					>
-						<FormNameProvider name='offapp'>
-							{Object.entries(sections).map(([k, v], i) => Section({ ...v, id: k, key: i }))}
-						</FormNameProvider>
-						<UseForm>
-							{({ submit }) => (
-								<Button className='full-width primary-background' onClick={() => submit()}>
-									Submit
-								</Button>
-							)}
-						</UseForm>
-					</div>
-
-					<DrawerTogglePreset style={{ position: "fixed", bottom: 12, left: 12 }} className='primary-background' />
-				</Drawer>
-				<DrawerToggle>
-					<Button style={{ position: "fixed", bottom: 12, right: 12 }} className='primary-background'>
-						FormState
-					</Button>
-				</DrawerToggle>
-			</Drawer>
+					{/* <FormNameProvider name='offapp'> */}
+					{Object.entries(sections).map(([k, v], i) => Section({ ...v, id: k, key: i }))}
+					{/* </FormNameProvider> */}
+					<UseForm>
+						{({ submit }) => (
+							<Button className='full-width primary-background' onClick={() => submit()}>
+								Submit
+							</Button>
+						)}
+					</UseForm>
+				</div>
+			</div>
+			{/* </Drawer>
+				
+					<DrawerToggle>
+						<Button
+							style={{ position: "fixed", bottom: 12, right: 12, display: "inline-block" }}
+							className='primary-background'
+						>
+							FormState
+						</Button>
+					</DrawerToggle>
+				
+			</Drawer> */}
 		</Form>
 	);
 };
