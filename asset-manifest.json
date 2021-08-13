@@ -1,26 +1,26 @@
 {
   "files": {
-    "main.css": "/portal/static/css/main.fc8dec9f.chunk.css",
-    "main.js": "/portal/static/js/main.3d3d6191.chunk.js",
-    "main.js.map": "/portal/static/js/main.3d3d6191.chunk.js.map",
-    "runtime-main.js": "/portal/static/js/runtime-main.cb4f0895.js",
-    "runtime-main.js.map": "/portal/static/js/runtime-main.cb4f0895.js.map",
-    "static/css/2.e3f9d515.chunk.css": "/portal/static/css/2.e3f9d515.chunk.css",
-    "static/js/2.739f9bf5.chunk.js": "/portal/static/js/2.739f9bf5.chunk.js",
-    "static/js/2.739f9bf5.chunk.js.map": "/portal/static/js/2.739f9bf5.chunk.js.map",
-    "static/js/3.5d906fc0.chunk.js": "/portal/static/js/3.5d906fc0.chunk.js",
-    "static/js/3.5d906fc0.chunk.js.map": "/portal/static/js/3.5d906fc0.chunk.js.map",
-    "index.html": "/portal/index.html",
-    "static/css/2.e3f9d515.chunk.css.map": "/portal/static/css/2.e3f9d515.chunk.css.map",
-    "static/css/main.fc8dec9f.chunk.css.map": "/portal/static/css/main.fc8dec9f.chunk.css.map",
-    "static/js/2.739f9bf5.chunk.js.LICENSE.txt": "/portal/static/js/2.739f9bf5.chunk.js.LICENSE.txt",
-    "static/media/glasses_man_small.77b35260.jpg": "/portal/static/media/glasses_man_small.77b35260.jpg"
+    "main.css": "/static/css/main.f7887cf2.chunk.css",
+    "main.js": "/static/js/main.2c692564.chunk.js",
+    "main.js.map": "/static/js/main.2c692564.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.01e1f797.js",
+    "runtime-main.js.map": "/static/js/runtime-main.01e1f797.js.map",
+    "static/css/2.e3f9d515.chunk.css": "/static/css/2.e3f9d515.chunk.css",
+    "static/js/2.336b0a98.chunk.js": "/static/js/2.336b0a98.chunk.js",
+    "static/js/2.336b0a98.chunk.js.map": "/static/js/2.336b0a98.chunk.js.map",
+    "static/js/3.e3fd9678.chunk.js": "/static/js/3.e3fd9678.chunk.js",
+    "static/js/3.e3fd9678.chunk.js.map": "/static/js/3.e3fd9678.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.e3f9d515.chunk.css.map": "/static/css/2.e3f9d515.chunk.css.map",
+    "static/css/main.f7887cf2.chunk.css.map": "/static/css/main.f7887cf2.chunk.css.map",
+    "static/js/2.336b0a98.chunk.js.LICENSE.txt": "/static/js/2.336b0a98.chunk.js.LICENSE.txt",
+    "static/media/glasses_man_small.77b35260.jpg": "/static/media/glasses_man_small.77b35260.jpg"
   },
   "entrypoints": [
-    "static/js/runtime-main.cb4f0895.js",
+    "static/js/runtime-main.01e1f797.js",
     "static/css/2.e3f9d515.chunk.css",
-    "static/js/2.739f9bf5.chunk.js",
-    "static/css/main.fc8dec9f.chunk.css",
-    "static/js/main.3d3d6191.chunk.js"
+    "static/js/2.336b0a98.chunk.js",
+    "static/css/main.f7887cf2.chunk.css",
+    "static/js/main.2c692564.chunk.js"
   ]
 }
