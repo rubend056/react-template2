@@ -54,6 +54,7 @@ const MyCalendar = ({ className, children, ...props }: MyCalendarProps & React.H
 		};
 		//@ts-ignore
 		setState({ draggedEvent: null });
+		//@ts-ignore
 		moveEvent({ event, start, end });
 	};
 

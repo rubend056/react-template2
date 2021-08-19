@@ -1,10 +1,10 @@
 import Button from "@common/atoms/Button";
 import Input from "@common/atoms/Form/Input";
-import { QueryError } from "@common/rxjs/rxjs_utils";
+import { QueryError, useObservable } from "@common/rxjs/rxjs_utils";
 import { useApi_Policy, setApi_PolicyQuery } from "../rxjs/observables";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { interval, map, share } from "rxjs";
+import { interval, map, share, startWith, Subject } from "rxjs";
 
 // A signal is an entry point to react-rxjs. It's equivalent to using a subject
 const [textChange$, setText] = createSignal<string>();
@@ -16,11 +16,20 @@ const int$ = interval(1000).pipe(share());
 const [useInt, latestInt$] = bind(int$, 0);
 // ---------------
 
+// My useObservable
+const subject = new Subject<number>();
+const subjectString$ = subject.pipe(
+	map((v) => `Hello World ${v}!`),
+	startWith("World Empty!")
+);
+// ---------
+
 const APITest = () => {
 	const text = useText();
 	const textLength = useTextLength();
 	const int = useInt();
 	const result = useApi_Policy();
+	const subjectString = useObservable(subjectString$);
 
 	return (
 		<>
@@ -47,6 +56,16 @@ const APITest = () => {
 					</Button>
 					<QueryError query={result} />
 					<textarea value={JSON.stringify(result, undefined, 2)}></textarea>
+				</div>
+				<div className='card'>
+					<Button
+						onClick={() => {
+							subject.next(Math.random() * 500);
+						}}
+					>
+						Trigger Subject
+					</Button>
+					{subjectString}
 				</div>
 			</div>
 		</>

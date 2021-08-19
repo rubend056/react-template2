@@ -12,8 +12,12 @@ y.addMethod(y.string, "assert", function (f: (v) => boolean, errorMessage) {
 const migratory_status = y.mixed().oneOf(["resident", "citizen"]).required();
 
 const schema_common = {
-	name: y.string().required().matches(regex_dict.name, "Not valid"),
-	name_optional: y.string().optional().matches(regex_dict.name, { message: "Not valid", excludeEmptyString: true }),
+	name: y.string().required().matches(regex_dict.name, { message: "Not valid", excludeEmptyString: true }),
+	name_optional: y
+		.string()
+		.nullable()
+		.optional()
+		.matches(regex_dict.name, { message: "Not valid", excludeEmptyString: true }),
 };
 const schema_basic = {
 	name: schema_common.name.max(120),
@@ -23,17 +27,22 @@ const schema_basic = {
 		["assert"]((s) => moment().diff(s, "years") >= 18, "Must be 18+"),
 	apply: y.boolean().default(true),
 	sex: y.mixed().oneOf(["M", "F"]).required(),
-	ssn: y.string().matches(regex_dict.ssn, { message: "Not an SSN", excludeEmptyString: true }).optional(),
+	ssn: y.string().optional().nullable().matches(regex_dict.ssn, { message: "Not an SSN", excludeEmptyString: true }),
 	migratoryStatus: migratory_status,
 };
 const schema_income = {
 	typeOfIncome: y.mixed().oneOf(["employed", "self_employed"]).required(),
-	annualIncome: y.number().required().min(0),
+	annualIncome: y.number().min(100).required(),
 	// employer: y.object({
-	employerName: y.string().required().max(50),
+	employerName: y.string().max(50).required(),
 	// .matches(regex_dict.name, "Only words")
-	employerPhone: y.string().required().matches(regex_dict.phone, "Not a phone"),
+	employerPhone: y.string().matches(regex_dict.phone, { message: "Not a Phone", excludeEmptyString: true }).required(),
 	// }).optional(),
+};
+const memberBasic = {
+	...schema_basic,
+	dob: y.string().required(),
+	relation: y.mixed().oneOf(["spouse", "dependent"]).required(),
 };
 const schema = y.object({
 	// offapp: y.object({
@@ -48,7 +57,7 @@ const schema = y.object({
 	city: y.string().required().max(35),
 	state: y.string().required().max(2),
 	// }),
-	residenceCardNumber: y.string().optional().max(13),
+	residenceCardNumber: y.string().optional().nullable().max(13),
 	// }),
 	// income: y.object({
 	...schema_income,
@@ -60,12 +69,16 @@ const schema = y.object({
 	annualHouseholdIncome: y.number().required().min(0),
 	offlineAppMembers: y.array(
 		y.object({
-			...schema_basic,
-			dob: y.string().required(),
-			relation: y.mixed().oneOf(["spouse", "dependent"]).required(),
+			...memberBasic,
 			// income: y
 			// 	.object({
-			...schema_income,
+			...Object.entries(schema_income).reduce((a, [k, v]) => {
+				a[k] = y
+					.string()
+					.nullable()
+					.when("relation", (r, s) => (r === "spouse" ? v : s));
+				return a;
+			}, {} as any),
 			// })
 			// .optional(),
 		})
@@ -87,7 +100,7 @@ const schema = y.object({
 	// }),
 });
 
-export type OfflineApp = y.Asserts<typeof schema>;
+export type OfflineAppFormType = y.Asserts<typeof schema>;
 
 // Add a prefix to keys
 // ...objectEntries(schema_name).reduce((a,[k,v]) => {a[`c_${k}`];return a;}, {} as {[k:string]:y.BaseSchema}),

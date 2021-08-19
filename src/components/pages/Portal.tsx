@@ -27,7 +27,7 @@ import {
 	YAxis,
 } from "recharts";
 import { setApi_SummaryQuery, useApi_Contacts, useApi_Summary } from "../../rxjs/observables";
-import OfflineForm from "../../pages_test/OfflineForm";
+import OfflineApp from "../../pages_test/OfflineForm";
 import s from "./Portal.module.scss";
 import user_icon from "../../glasses_man_small.jpg";
 import Toolbar from "@common/organisms/Toolbar";
@@ -37,6 +37,9 @@ import Policies, { PoliciesDetail } from "../molecules/Policies";
 import OfflineManage from "./OfflineManage";
 import MyInfo from "./MyInfo";
 import MyCalendar from "./MyCalendar";
+import QueryErrorContainer from "@common/atoms/QueryErrorContainer";
+import Login from "./Login";
+import { isLogin } from "../atoms/PrivateRoute";
 
 export const usePaths = (paths: string[] | string) => {
 	const match = useRouteMatch();
@@ -66,7 +69,7 @@ export const usePaths = (paths: string[] | string) => {
 export interface DashboardProps {
 	children?: ReactNode | undefined;
 }
-const LinkText = (props) => <span>{props.children}</span>;
+const ToHide = (props) => <>{props.hide ? "" : props.children}</>;
 const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAttributes<HTMLDivElement>) => {
 	const theme = useTheme().name;
 	className = cnf(s, `comp`, theme, className);
@@ -86,6 +89,7 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 		"offline_form",
 		"offline_manage",
 		"offline_queue",
+		"login",
 	];
 	const { links, linkNames, path, pathNames } = usePaths(pathArr);
 	// Defining drawer links content
@@ -95,10 +99,7 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 			header: links.dashboard(
 				<>
 					<Icon icon={BiNews} />
-					<LinkText>Dashboard</LinkText>
-
-					{/* <div style={{flexGrow:1}}/>
-					<CollapsibleToggleIcon/> */}
+					<ToHide>Dashboard</ToHide>
 				</>
 			),
 		},
@@ -106,9 +107,11 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 			header: linkButton(
 				<>
 					<Icon icon={AiOutlineUser} />
-					<LinkText>My Profile</LinkText>
-					<div style={{ flexGrow: 1 }} />
-					<CollapsibleToggleIcon />
+					<ToHide>
+						My Profile
+						<div style={{ flexGrow: 1 }} />
+						<CollapsibleToggleIcon />
+					</ToHide>
 				</>
 			),
 			content: (
@@ -128,9 +131,7 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 			header: links.analyst(
 				<>
 					<Icon icon={AiOutlinePieChart} />
-					<LinkText>Analyst</LinkText>
-					{/* <div style={{flexGrow:1}}/>
-					<CollapsibleToggleIcon/> */}
+					<ToHide>Analyst</ToHide>
 				</>
 			),
 		},
@@ -138,9 +139,11 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 			header: linkButton(
 				<>
 					<Icon icon={AiOutlineBell} />
-					<LinkText>Notifications</LinkText>
-					<div style={{ flexGrow: 1 }} />
-					<CollapsibleToggleIcon />
+					<ToHide>
+						Notifications
+						<div style={{ flexGrow: 1 }} />
+						<CollapsibleToggleIcon />
+					</ToHide>
 				</>
 			),
 			content: (
@@ -155,18 +158,25 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 	const [open, setOpen] = useState(true);
 	const sideLinks = (
 		<>
-			<Apply depth_max={-1} className={`${open ? "" : "hide"}`} to={LinkText}>
-				<Apply depth_max={-1} style={{ flexShrink: 0 }} className='margin-right-2' size='1.4em' to={Icon}>
+			{/* <Apply depth_max={-1} className={`${open ? "" : "hide"}`} to={CollapsibleToggleIcon}> */}
+			<Apply depth_max={-1} hide={!open} to={ToHide}>
+				<Apply
+					depth_max={-1}
+					style={{ flexShrink: 0 }}
+					className={`${open ? "margin-right-2" : ""}`}
+					size='1.4em'
+					to={Icon}
+				>
 					<Apply
 						depth_max={-1}
 						className='full-width border-radius-0'
-						style={{ textAlign: "left", display: "flex", alignItems: "center" }}
+						style={{ justifyContent: open ? "left" : "center", display: "flex", alignItems: "center" }}
 						to={Button}
 					>
 						{Object.entries(dcontent).map(
 							([k, v], i) =>
 								v && (
-									<Collapsible key={i} placeholder='Select Agent'>
+									<Collapsible key={i} placeholder='Select Agent' canCollapse={open}>
 										<div className={cnf(s, "margin-top-3")}>{v.header}</div>
 										<div style={{ paddingLeft: 35 }}>{v.content}</div>
 									</Collapsible>
@@ -175,6 +185,7 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 					</Apply>
 				</Apply>
 			</Apply>
+			{/* </Apply> */}
 		</>
 	);
 	const routes = (
@@ -188,7 +199,7 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 			<Route path={pathNames.policies} component={Policies} />
 			<Route path={pathNames.info} component={MyInfo} />
 			<Route path={pathNames.calendar} component={MyCalendar} />
-			<Route path={pathNames.offline_form} component={OfflineForm} />
+			<Route path={pathNames.offline_form} component={OfflineApp} />
 			<Route>Not Implemented</Route>
 		</Switch>
 	);
@@ -196,64 +207,97 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 	const contacts = useApi_Contacts();
 
 	return (
-		<Drawer
-			// background={false}
-			// floating
-			fixed
-			visible_always
-			// sticky
-			// style={{ minHeight: "100%" }}
-			open={open}
-			setOpen={setOpen}
-			style={{ minHeight: "100vh" }}
-			drawer={
-				<>
-					<DrawerTogglePreset />
-					<div className='padding-v-3'>
-						<div style={{ borderRadius: "50%", width: 70, height: 70, display: "inline-block", overflow: "hidden" }}>
-							<img src={user_icon} alt='Glasses' />
-						</div>
-						{/* <Icon size={70} style={{ width: "100%" }} className='margin-bottom-1' icon={FaUserCircle}></Icon> */}
-						{/* Contact Selection */}
-						<Select
-							onChange={(e) => e.target["value"] && setApi_SummaryQuery({ contactId: e.target["value"] })}
-							placeholder='Select Agent'
-						>
-							{Array.isArray(contacts) &&
-								contacts.map((c) => (
-									<option value={c.id} key={c.id}>
-										{c.firstName}
-									</option>
-								))}
-						</Select>
-					</div>
-					{sideLinks}
-				</>
-			}
-			// contentProps={{ style: { marginLeft: "250px" } }}
-			drawerProps={{
-				// className:cnf(s, 'drawer'),
+		<>
+			<Switch>
+				<Route path={pathNames.login} component={Login} />
+				<Route>
+					<Drawer
+						// background={false}
+						// floating
+						fixed
+						visible_always
+						// sticky
+						// style={{ minHeight: "100%" }}
+						open={open}
+						setOpen={setOpen}
+						style={{ minHeight: "100vh" }}
+						drawer={
+							<>
+								{/* <DrawerTogglePreset /> */}
+								<div className='padding-v-3'>
+									<div style={{ display: "flex", justifyContent: "center" }} className='margin-3'>
+										<div
+											style={{
+												borderRadius: "50%",
+												// width: '100%', paddingTop:'100%',
+												flex: "1 1 50px",
+												maxWidth: 60,
+												overflow: "hidden",
+											}}
+										>
+											<img src={user_icon} alt='Glasses' />
+										</div>
+									</div>
+									{/* <Icon size={70} style={{ width: "100%" }} className='margin-bottom-1' icon={FaUserCircle}></Icon> */}
+									{/* Contact Selection */}
+									<div className={open ? "" : "hide"}>
+										<QueryErrorContainer response={contacts}>
+											{({ data: contacts }) => (
+												<Select
+													onChange={(e) => e.target["value"] && setApi_SummaryQuery({ contactId: e.target["value"] })}
+													placeholder='Select Agent'
+												>
+													{Array.isArray(contacts) &&
+														contacts.map((c) => (
+															<option value={c.id} key={c.id}>
+																{c.firstName}
+															</option>
+														))}
+												</Select>
+											)}
+										</QueryErrorContainer>
+									</div>
+								</div>
+								{sideLinks}
+							</>
+						}
+						// contentProps={{ style: { marginLeft: "250px" } }}
+						drawerProps={{
+							// className:cnf(s, 'drawer'),
 
-				style: { background: "linear-gradient(75deg, #7B54A3, #DF5395)", height: "100vh" },
-			}}
-		>
-			<Toolbar
-				left={<DrawerTogglePreset />}
-				middle={
-					<>
-						<div style={{ fontSize: "1.4em" }}>
-							<span>Agent Portal</span>
-							<br />
-							{/* <span>{path}</span> */}
-						</div>
-					</>
-				}
-			/>
-			<div className='padding-4'>{routes}</div>
-		</Drawer>
-		// SOMETHING ELSE
-		// <div >
-		// </div>
+							style: { background: "linear-gradient(75deg, #7B54A3, #DF5395)", height: "100vh" },
+						}}
+					>
+						<Toolbar
+							left={<DrawerTogglePreset />}
+							middle={
+								<>
+									<div style={{ fontSize: "1.4em" }}>
+										<span>Agent Portal</span>
+										<br />
+										{/* <span>{path}</span> */}
+									</div>
+								</>
+							}
+							right={
+								<>
+									{isLogin() ? (
+										<Link to='/login'>
+											<Button onClick={() => localStorage.removeItem("token")}>Logout</Button>
+										</Link>
+									) : (
+										<Link to='/login'>
+											<Button>Login</Button>
+										</Link>
+									)}
+								</>
+							}
+						/>
+						<div className='padding-4'>{routes}</div>
+					</Drawer>
+				</Route>
+			</Switch>
+		</>
 	);
 };
 

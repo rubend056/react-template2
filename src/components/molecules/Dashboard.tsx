@@ -1,3 +1,4 @@
+import QueryErrorContainer from "@common/atoms/QueryErrorContainer";
 import React, { CSSProperties } from "react";
 import {
 	Bar,
@@ -13,7 +14,7 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-import { useApi_Summary } from "../../rxjs/observables";
+import { SummaryItem, useApi_Summary } from "../../rxjs/observables";
 // import { randomInt } from "crypto";
 // import styles from "@common/styles/globals_export.scss";
 
@@ -112,9 +113,10 @@ const Dashboard = (props) => {
 			}
 		});
 	};
-	if (Array.isArray(summary)) {
+	if (summary && summary["data"]) {
+		const summary_data = summary["data"] as SummaryItem[];
 		add(
-			summary,
+			summary_data,
 			dataThisYear,
 			"carrierName",
 			(v) => v.year === year,
@@ -125,7 +127,7 @@ const Dashboard = (props) => {
 			(v) => ({ carrierName: v.carrierName, policies: 0, members: 0 })
 		);
 		add(
-			summary,
+			summary_data,
 			carrierMonth,
 			"carrierName",
 			(v) => v.year === year && v.month === month,
@@ -136,7 +138,7 @@ const Dashboard = (props) => {
 			(v) => ({ carrierName: v.carrierName, policies: 0, members: 0 })
 		);
 		add(
-			summary,
+			summary_data,
 			dataMonth,
 			"month",
 			(v) => v.year === year && v.month === month,
@@ -147,7 +149,7 @@ const Dashboard = (props) => {
 			(v) => ({ month: v.month, policies: 0, members: 0 })
 		);
 		add(
-			summary,
+			summary_data,
 			dataYearMonthly,
 			"month",
 			(v) => v.year === year,
@@ -170,7 +172,7 @@ const Dashboard = (props) => {
 	});
 	// * -----------------------------------------
 
-	console.log(summary);
+	// console.log(summary);
 	console.log(carrierMonth);
 	const centerSyle: CSSProperties = {
 		position: "absolute",
@@ -180,99 +182,103 @@ const Dashboard = (props) => {
 		transform: "translate(-50%,-50%)",
 	};
 	return (
-		<div style={{ display: "flex", flexFlow: "row wrap", gap: "1em" }} className='padding-4'>
-			{/* <ResponsiveContainer width="100%" height="400px"> */}
-			<InfoContainer>
-				<div style={{ ...centerSyle, width: "30%" }}>Yearly Sales</div>
-				<ResponsiveContainer width='100%' height='100%'>
-					<PieChart width={400} height={400}>
-						<defs>
-							<linearGradient id='colorUv' x1='0' y1='0' x2='0' y2='1'>
-								<stop offset='5%' stopColor='#129a74' stopOpacity={0.8} />
-								<stop offset='95%' stopColor='#129a74' stopOpacity={0} />
-							</linearGradient>
-						</defs>
-						{/* <Legend /> */}
-						<Pie
-							data={dataThisYear}
-							dataKey='policies'
-							innerRadius='30%'
-							outerRadius='50%'
-							nameKey='carrierName'
-							fill='#7B54A3'
-						/>
+		<QueryErrorContainer
+			response={summary}
+			childrenDefault={"This is the dashboard, select an agent on the side to view their stats"}
+			minHeight={400}
+		>
+			{() => (
+				<>
+					<div style={{ display: "flex", flexFlow: "row wrap", gap: "1em" }} className='padding-4'>
+						{/* <ResponsiveContainer width="100%" height="400px"> */}
+						<InfoContainer>
+							<div style={{ ...centerSyle, width: "30%" }}>Yearly Sales</div>
+							<ResponsiveContainer width='100%' height='100%'>
+								<PieChart width={400} height={400}>
+									<defs>
+										<linearGradient id='colorUv' x1='0' y1='0' x2='0' y2='1'>
+											<stop offset='5%' stopColor='#129a74' stopOpacity={0.8} />
+											<stop offset='95%' stopColor='#129a74' stopOpacity={0} />
+										</linearGradient>
+									</defs>
+									{/* <Legend /> */}
+									<Pie
+										data={dataThisYear}
+										dataKey='policies'
+										innerRadius='30%'
+										outerRadius='50%'
+										nameKey='carrierName'
+										fill='#7B54A3'
+									/>
 
-						<Pie
-							data={dataThisYear}
-							dataKey='members'
-							nameKey='carrierName'
-							innerRadius='60%'
-							outerRadius='75%'
-							fill='#DF5395'
-							label
-						/>
-						<Tooltip />
-					</PieChart>
-				</ResponsiveContainer>
-			</InfoContainer>
-
-			<InfoContainer>
-				<h2 style={{ textAlign: "center" }}>Yearly Sales</h2>
-				<ResponsiveContainer>
-					<ComposedChart
-						width={600}
-						height={400}
-						data={dataYearMonthly}
-						margin={{
-							top: 40,
-							right: 30,
-							bottom: 90,
-							left: 0,
-						}}
-					>
-						<CartesianGrid stroke='#808080a3' />
-						<XAxis dataKey='monthClipped' />
-						<YAxis />
-						<Tooltip />
-						<Legend style={{ bottom: 70 }} />
-						<Bar dataKey='policies' barSize={20} fill='#7B54A3' />
-						<Line type='monotone' dataKey='members' stroke='#DF5395' />
-					</ComposedChart>
-				</ResponsiveContainer>
-				{/* <div style={{ ...centerSyle}}>This year</div> */}
-			</InfoContainer>
-
-			<InfoContainer>
-				<h2 style={{ textAlign: "center" }}>Last Month's Sales</h2>
-				{/* <div style={{ position: "relative", flex:'1 1 auto', minHeight:200}}> */}
-				{(dataMonth.length && (
-					<ResponsiveContainer>
-						<BarChart
-							// key={JSON.stringify(dataMonth)}
-							// width={600}
-							margin={{
-								top: 40,
-								right: 30,
-								bottom: 90,
-								left: 0,
-							}}
-							// height={400}
-							data={carrierMonth}
-						>
-							<CartesianGrid stroke='#808080a3' />
-							<XAxis dataKey='carrierName' />
-							<YAxis />
-							<Tooltip />
-							<Legend />
-							<Bar dataKey='members' fill='#DF5395' />
-							<Bar dataKey='policies' fill='#7B54A3' />
-						</BarChart>
-					</ResponsiveContainer>
-				)) || <div style={centerSyle}>No data this month</div>}
-				{/* </div> */}
-			</InfoContainer>
-
-			{/* <InfoContainer>
+									<Pie
+										data={dataThisYear}
+										dataKey='members'
+										nameKey='carrierName'
+										innerRadius='60%'
+										outerRadius='75%'
+										fill='#DF5395'
+										label
+									/>
+									<Tooltip />
+								</PieChart>
+							</ResponsiveContainer>
+						</InfoContainer>
+						<InfoContainer>
+							<h2 style={{ textAlign: "center" }}>Yearly Sales</h2>
+							<ResponsiveContainer>
+								<ComposedChart
+									width={600}
+									height={400}
+									data={dataYearMonthly}
+									margin={{
+										top: 40,
+										right: 30,
+										bottom: 90,
+										left: 0,
+									}}
+								>
+									<CartesianGrid stroke='#808080a3' />
+									<XAxis dataKey='monthClipped' />
+									<YAxis />
+									<Tooltip />
+									<Legend style={{ bottom: 70 }} />
+									<Bar dataKey='policies' barSize={20} fill='#7B54A3' />
+									<Line type='monotone' dataKey='members' stroke='#DF5395' />
+								</ComposedChart>
+							</ResponsiveContainer>
+							{/* <div style={{ ...centerSyle}}>This year</div> */}
+						</InfoContainer>
+						<InfoContainer>
+							<h2 style={{ textAlign: "center" }}>Last Month's Sales</h2>
+							{/* <div style={{ position: "relative", flex:'1 1 auto', minHeight:200}}> */}
+							{(dataMonth.length && (
+								<ResponsiveContainer>
+									<BarChart
+										// key={JSON.stringify(dataMonth)}
+										// width={600}
+										margin={{
+											top: 40,
+											right: 30,
+											bottom: 90,
+											left: 0,
+										}}
+										// height={400}
+										data={carrierMonth}
+									>
+										<CartesianGrid stroke='#808080a3' />
+										<XAxis dataKey='carrierName' />
+										<YAxis />
+										<Tooltip />
+										<Legend />
+										<Bar dataKey='members' fill='#DF5395' />
+										<Bar dataKey='policies' fill='#7B54A3' />
+									</BarChart>
+								</ResponsiveContainer>
+							)) || <div style={centerSyle}>No data this month</div>}
+							{/* </div> */}
+						</InfoContainer>
+						{/* <InfoContainer>
 				<Table
 					options={{
 						columns: columnsQuick("name,Carrier;members,Members;policies,Policies;percent, %"),
@@ -280,9 +286,11 @@ const Dashboard = (props) => {
 					}}
 				/>
 			</InfoContainer> */}
-
-			{/* </ResponsiveContainer> */}
-		</div>
+						{/* </ResponsiveContainer> */}{" "}
+					</div>
+				</>
+			)}
+		</QueryErrorContainer>
 	);
 };
 

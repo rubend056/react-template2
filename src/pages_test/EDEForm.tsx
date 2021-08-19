@@ -5,12 +5,11 @@ import Form, { FieldArray, FormNameProvider, UseForm } from "@common/atoms/Form/
 import moment from "moment";
 import { FiX } from "react-icons/fi";
 import * as y from "yup";
-import Drawer, { DrawerToggle } from "../common/atoms/Drawer";
-import { field_utils, regex_dict } from "../common/atoms/Form/form_utils";
-import GroupClose from "../common/atoms/GroupClose";
-import Icon from "../common/atoms/Icon";
-import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
-import { setDefault } from "../common/utils";
+import Drawer, { DrawerToggle } from "@common/atoms/Drawer";
+import { field_utils, regex_dict } from "@common/atoms/Form/form_utils";
+import GroupClose from "@common/atoms/GroupClose";
+import Icon from "@common/atoms/Icon";
+import DrawerTogglePreset from "@common/molecules/DrawerTogglePreset";
 
 y.addMethod(y.string, "assert", function (f: (v) => boolean, errorMessage) {
 	return this.test(`assert`, errorMessage, function (value) {
@@ -198,7 +197,7 @@ const sections = {
 				<FormNameProvider name='primary.address_mail'>
 					<UseForm>
 						{({ getValue }) =>
-							!setDefault(getValue("primary.address_is_mail"), true) && (
+							!(getValue("primary.address_is_mail") ?? true) && (
 								<>
 									<Field name='line1' label='Address' />
 									<Field name='line2' label='Apartment, suite, etc.' />

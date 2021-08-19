@@ -1,12 +1,14 @@
 import {
-	APIFetchResponse,
 	createAPIFetch,
 	createAPIFetchCustom,
 	createAPIFetchQuery,
 	createAPIFetchStatic,
+	ResponseFetch,
 } from "@common/rxjs/rxjs_utils";
-import { bind } from "@react-rxjs/core";
-import { OfflineApp as OfflineAppForm } from "../pages_test/OfflineForm_val";
+import { OfflineAppFormType } from "../pages_test/OfflineForm_val";
+
+type DetailQuery = { id: string };
+type SuccessResponse = { success: boolean };
 
 // * CONTACTS ***********
 interface Contact {
@@ -19,12 +21,18 @@ interface Contact {
 	entityMetadataId: string;
 	updatedDate: string;
 }
-type Contacts = Contact[] | APIFetchResponse | null;
-export const [useApi_Contacts, contacts$] = createAPIFetchStatic<Contacts>(`/Contacts`, undefined, null);
+
+export const [useApi_Contacts, contacts$] = createAPIFetchStatic<Contact[]>(`/Contacts`);
 // ----------------------
 
 // * CARRIERS **********
-export const [useApi_Carriers, carriers$] = createAPIFetchStatic(`/Carriers`);
+interface Carrier {
+	id: string;
+	contactId: string;
+	name: string;
+}
+
+export const [useApi_Carriers, carriers$] = createAPIFetchStatic<Carrier[]>(`/Carriers`);
 // ----------------------
 
 // * CITIES ********
@@ -35,8 +43,8 @@ interface City {
 	stateId: string;
 	countyId: string;
 }
-type Cities = City[] | APIFetchResponse | null;
-export const [useApi_Cities, cities$] = createAPIFetchStatic<Cities>(`/Cities`, undefined, null);
+
+export const [useApi_Cities, cities$] = createAPIFetchStatic<City[]>(`/Cities`);
 // ----------------------
 
 // * COUNTIES ********
@@ -46,8 +54,8 @@ interface County {
 	name: string;
 	stateId: string;
 }
-type Counties = County[] | APIFetchResponse | null;
-export const [useApi_Counties, counties$] = createAPIFetchStatic<Counties>(`/Counties`, undefined, null);
+
+export const [useApi_Counties, counties$] = createAPIFetchStatic<County[]>(`/Counties`);
 // ----------------------
 
 // * STATES ********
@@ -57,8 +65,28 @@ interface State {
 	name: string;
 	countryId: string;
 }
-type States = State[] | APIFetchResponse | null;
-export const [useApi_States, states$] = createAPIFetchStatic(`/States`);
+
+export const [useApi_States, states$] = createAPIFetchStatic<State[]>(`/States`);
+// ----------------------
+// * AGENTS ********
+interface Agent {
+	id: string;
+	contactId: string | null;
+	firstName: string | null;
+	lastName: string | null;
+}
+
+export const [useApi_Agents, agents$] = createAPIFetchStatic<Agent[]>(`/Agent`);
+// * TYPEGENERIC ********
+interface TypeGeneric {
+	id: string;
+	code?: string | null;
+	name: string;
+}
+
+export const [useApi_TypeStatus, typeStatus$] = createAPIFetchStatic<TypeGeneric[]>(
+	`/TypeGeneric/791B7B3D-E2D0-4319-9676-7DEA67D0F030`
+);
 // ----------------------
 
 interface PagesQuery {
@@ -112,12 +140,16 @@ interface Policy {
 	stateId: string;
 	statename: string;
 }
-interface PolicyResponse extends PagesResponse<Policy> {}
 
 export const [setApi_PolicyQuery, useApi_PolicyQuery, useApi_Policy, policy$] = createAPIFetchQuery<
 	PolicyQuery,
-	PolicyResponse | null
->("/Policies", undefined, null);
+	PagesResponse<Policy>
+>("/Policies", undefined);
+// ----------------------
+
+// * POLICY DETAIL *********
+export const [setApi_PolicyDetailQuery, useApi_PolicyDetailQuery, useApi_PolicyDetail, policyDetail$] =
+	createAPIFetchCustom<DetailQuery, any>((v) => createAPIFetch(`/Policies/detail/${v.id}`));
 // ----------------------
 
 // * SUMMARY *********
@@ -128,7 +160,7 @@ interface SummaryQuery {
 	carrierId?: string;
 	groupBy?: string;
 }
-interface SummaryItem {
+export interface SummaryItem {
 	contactId: string;
 	carrierId: string;
 	carrierName: string;
@@ -138,42 +170,99 @@ interface SummaryItem {
 	month: number;
 	year: number;
 }
-type Summary = SummaryItem[] | APIFetchResponse | null;
+
 export const [setApi_SummaryQuery, useApi_SummaryQuery, useApi_Summary, summary$] = createAPIFetchQuery<
 	SummaryQuery,
-	Summary
+	SummaryItem[]
 >("/Policies/summaries");
 // ----------------------
 
-// * OFFLINE APP GET *********
+// * OFFLINEAPP GET *********
 export interface OfflineAppQuery extends PagesQuery {
 	fromDob?: string;
 	toDob?: string;
 }
-export interface OfflineApp extends OfflineAppForm {
+export interface OfflineApp extends OfflineAppFormType {
 	id: string;
 	activeStatus?: string;
+	membersLength?: number;
 }
 
-type OfflineAppResponse = PagesResponse<OfflineApp> | null;
 export const [setApi_OfflineAppGetQuery, useApi_OfflineAppGetQuery, useApi_OfflineAppGet, offlineAppGet$] =
-	createAPIFetchQuery<OfflineAppQuery, OfflineAppResponse>("/OfflineApp");
+	createAPIFetchQuery<OfflineAppQuery, PagesResponse<OfflineApp>>("/OfflineApp");
 // ----------------------
 
-// * OFFLINE APP POST *********
+// * OFFLINEAPP POST *********
 export const [setApi_OfflineAppPostQuery, useApi_OfflineAppPostQuery, useApi_OfflineAppPost, offlineAppPost$] =
-	createAPIFetchCustom<any, any>(
+	createAPIFetchCustom<OfflineAppFormType, any>(
 		(v) =>
 			createAPIFetch(`/OfflineApp`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(v),
 			}),
-		null
+		{ shareReplay: false }
 	);
 // ----------------------
 
-// * POLICY DETAIL *********
-export const [setApi_PolicyDetailQuery, useApi_PolicyDetailQuery, useApi_PolicyDetail, policyDetail$] =
-	createAPIFetchCustom<{ id: string }, any>((v) => createAPIFetch(`/Policies/detail/${v.id}`));
+// * OFFLINEAPP/ID GET *********
+export interface OfflineAppId extends OfflineAppFormType {
+	id: string;
+	activeStatus?: string;
+	membersLength?: number;
+}
+export const [setApi_OfflineAppIdGetQuery, useApi_OfflineAppIdGetQuery, useApi_OfflineAppIdGet, offlineAppIdGet$] =
+	createAPIFetchCustom<DetailQuery, ResponseFetch<OfflineAppId>>((v) =>
+		createAPIFetch<OfflineAppId>(`/OfflineApp/${v.id}`)
+	);
+// ----------------------
+
+// * OFFLINEAPP/ID PUT *********
+export const [setApi_OfflineAppIdPutQuery, useApi_OfflineAppIdPutQuery, useApi_OfflineAppIdPut, offlineAppIdPut$] =
+	createAPIFetchCustom<DetailQuery & OfflineAppFormType, ResponseFetch<SuccessResponse>>(
+		({ id, ...v }) =>
+			createAPIFetch<SuccessResponse>(`/OfflineApp/${id}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(v),
+			}),
+		{ shareReplay: false }
+	);
+// ----------------------
+
+// * OFFLINEAPP/ID/STATUS GET *********
+export interface OfflineAppStatus {
+	id: string;
+	name: string;
+	code: string;
+}
+export const [
+	setApi_OfflineAppIdStatusGetQuery,
+	useApi_OfflineAppIdStatusGetQuery,
+	useApi_OfflineAppIdStatusGet,
+	offlineAppIdStatusGet$,
+] = createAPIFetchCustom<DetailQuery, ResponseFetch<OfflineAppStatus[]>>((v) =>
+	createAPIFetch<OfflineAppStatus[]>(`/OfflineApp/${v.id}/status`)
+);
+// ----------------------
+
+// * OFFLINEAPP/ID/STATUS POST *********
+export interface OfflineAppStatusQuery {
+	statusId?: string;
+	agentId?: string;
+}
+export const [
+	setApi_OfflineAppIdStatusPostQuery,
+	useApi_OfflineAppIdStatusPostQuery,
+	useApi_OfflineAppIdStatusPost,
+	offlineAppIdStatusPost$,
+] = createAPIFetchCustom<DetailQuery & OfflineAppStatusQuery, ResponseFetch<OfflineAppStatus>>(
+	({ id, ...v }) =>
+		createAPIFetch<OfflineAppStatus>(`/OfflineApp/${id}/status`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(v),
+		}),
+	{ shareReplay: false }
+);
 // ----------------------

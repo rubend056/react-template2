@@ -7,11 +7,12 @@ import { useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import { setApi_OfflineAppPostQuery, useApi_OfflineAppPost } from "../rxjs/observables";
 import { scrollToElement } from "@common/utils_react";
-import Divider from "../common/atoms/Divider";
-import { Field } from "../common/atoms/Form/Field";
-import { field_utils } from "../common/atoms/Form/form_utils";
-import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
+import Divider from "@common/atoms/Divider";
+import { Field } from "@common/atoms/Form/Field";
+import { field_utils } from "@common/atoms/Form/form_utils";
+import DrawerTogglePreset from "@common/molecules/DrawerTogglePreset";
 import schema, { stateLabelValues } from "./OfflineForm_val";
+export { schema as OfflineForm_Schema };
 
 const Section = ({ content, name, ...props }) => {
 	return (
@@ -73,7 +74,9 @@ const sections = {
 						<Field name='city' label='City' required />
 						<Field name='state' type='select' label='State' placeholder='' required>
 							{stateLabelValues.map((s) => (
-								<option value={s.value}>{s.label}</option>
+								<option value={s.value} key={s.value}>
+									{s.label}
+								</option>
 							))}
 						</Field>
 					</FormNameProvider>
@@ -179,7 +182,29 @@ const sections = {
 	},
 };
 
-const OfflineForm = (props) => {
+export const OfflineAppForm = ({ children }: { children? }) => (
+	<>
+		<div style={{ textAlign: "center" }}>
+			<div
+				style={{
+					display: "inline-flex",
+					// justifyContent: "center",
+					flexFlow: "column nowrap",
+					gap: 50,
+					maxWidth: 700,
+				}}
+				className='padding-4'
+			>
+				{/* <FormNameProvider name='offapp'> */}
+				{Object.entries(sections).map(([k, v], i) => Section({ ...v, id: k, key: i }))}
+				{/* </FormNameProvider> */}
+				{children}
+			</div>
+		</div>
+	</>
+);
+
+const OfflineApp = (props) => {
 	const nots = useNotifications();
 	const offlineFormPost = useApi_OfflineAppPost();
 
@@ -204,7 +229,7 @@ const OfflineForm = (props) => {
 	};
 	return (
 		<Form validationSchema={schema} onSubmit={onSubmit}>
-			{/* <Drawer
+			<Drawer
 				right
 				fixed
 				drawer={
@@ -239,47 +264,33 @@ const OfflineForm = (props) => {
 						</Button>
 					))}
 					contentProps={{ style: { textAlign: "center" } }}
-				> */}
-			{/* <DrawerTogglePreset
+				>
+					<DrawerTogglePreset
 						style={{ position: "sticky", display: "inline-block", top: "50%", transform: "translateY(-50%)", left: 12 }}
 						className='primary-background'
-					/> */}
-			<div style={{ textAlign: "center" }}>
-				<div
-					style={{
-						display: "inline-flex",
-						// justifyContent: "center",
-						flexFlow: "column nowrap",
-						gap: 50,
-						maxWidth: 700,
-					}}
-					className='padding-4 padding-bottom-8'
-				>
-					{/* <FormNameProvider name='offapp'> */}
-					{Object.entries(sections).map(([k, v], i) => Section({ ...v, id: k, key: i }))}
-					{/* </FormNameProvider> */}
-					<UseForm>
-						{({ submit }) => (
-							<Button className='full-width primary-background' onClick={() => submit()}>
-								Submit
-							</Button>
-						)}
-					</UseForm>
-				</div>
-			</div>
-			{/* </Drawer>
-				
-					<DrawerToggle>
-						<Button
-							style={{ position: "fixed", bottom: 12, right: 12, display: "inline-block" }}
-							className='primary-background'
-						>
-							FormState
-						</Button>
-					</DrawerToggle>
-				
-			</Drawer> */}
+					/>
+
+					<OfflineAppForm>
+						<UseForm>
+							{({ submit }) => (
+								<Button className='full-width primary-background-5' onClick={() => submit()}>
+									Submit
+								</Button>
+							)}
+						</UseForm>
+					</OfflineAppForm>
+				</Drawer>
+
+				<DrawerToggle>
+					<Button
+						style={{ position: "fixed", bottom: 12, right: 12, display: "inline-block" }}
+						className='primary-background'
+					>
+						FormState
+					</Button>
+				</DrawerToggle>
+			</Drawer>
 		</Form>
 	);
 };
-export default OfflineForm;
+export default OfflineApp;

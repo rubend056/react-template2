@@ -4,19 +4,21 @@ import Apply from "@common/atoms/HOC/Apply";
 import Toolbar from "@common/organisms/Toolbar";
 import Portal from "../components/pages/Portal";
 import { BsFillCaretLeftFill, BsJustify } from "react-icons/bs";
-import { Link, Route, Switch, useLocation } from "react-router-dom";
-import DrawerTogglePreset from "../common/molecules/DrawerTogglePreset";
-import ThemeTogglePreset from "../common/molecules/ThemeTogglePreset";
+import { Link, Redirect, Route, Switch, useLocation } from "react-router-dom";
+import DrawerTogglePreset from "@common/molecules/DrawerTogglePreset";
+import ThemeTogglePreset from "@common/molecules/ThemeTogglePreset";
 import TestPage0 from "../pages_test/TestPage0";
 import EDEForm from "./EDEForm";
-import OfflineForm from "./OfflineForm";
+import OfflineApp from "./OfflineForm";
 import APITest from "./APITest";
+import Login from "../components/pages/Login";
+import PrivateRoute from "../components/atoms/PrivateRoute";
 
 const testPages = [
 	{ comp: TestPage0, name: "Test 0" },
 	{ comp: EDEForm, name: "EDE Form" },
-	{ comp: OfflineForm, name: "Offline Form" },
-	{ comp: Portal, name: "Portal" },
+	{ comp: OfflineApp, name: "Offline Form" },
+	{ comp: Portal, name: "Portal", protected: true },
 	{ comp: APITest, name: "API Test" },
 ].map((v, i) => {
 	return { route: `/${v.name.replace(/ /g, "_").toLowerCase()}`, ...v };
@@ -29,7 +31,11 @@ const TestPages = (props) => {
 		</Link>
 	));
 	const testRoutes = testPages.map((v) => {
-		return <Route key={v.route} path={v.route} component={v.comp} />;
+		return v.protected ? (
+			<PrivateRoute key={v.route} path={v.route} component={v.comp} />
+		) : (
+			<Route key={v.route} path={v.route} component={v.comp} />
+		);
 	});
 	// const rmatch = useRouteMatch();
 	const location = useLocation();
@@ -59,8 +65,14 @@ const TestPages = (props) => {
 					right={<ThemeTogglePreset />}
 				/> */}
 
-				<Switch>{testRoutes}</Switch>
-				<DrawerTogglePreset icon={BsJustify} style={{ position: "fixed", left: 10, bottom: 10 }} />
+				<Switch>
+					<Route exact path='/'>
+						<Redirect to={`/portal`} />
+					</Route>
+					<Route path='/login' component={Login} />
+					{testRoutes}
+				</Switch>
+				<DrawerTogglePreset icon={BsJustify} style={{ zIndex: 20, position: "fixed", left: 10, bottom: 10 }} />
 			</Drawer>
 		</>
 	);

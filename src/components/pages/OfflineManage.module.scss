@@ -1,22 +1,31 @@
 @import "@common/styles/globals";
 
 .table {
+	padding: get-space(1);
+	border-collapse: collapse;
+	th,
+	td {
+		padding: get-space(1);
+		border: 1px solid get-color(neutral, $alpha: 0.3);
+		// border-top: 1px solid get-color(neutral, $alpha: .5);
+		// border-bottom: 1px solid get-color(neutral, $alpha: .5);
+	}
 }
 .row {
 	& > td:first-of-type {
-		padding-left: 0.4em;
+		padding-left: 1em;
 		position: relative;
 		&::after {
 			content: "";
 			position: absolute;
 			top: 0;
 			left: 0;
-			width: 0.3em;
+			width: 0.6em;
 			height: 100%;
 		}
 	}
 	&.selected > td:first-of-type::after {
-		background: get-color(primary, $alpha: 0.8);
+		background: get-color(primary, $alpha: 1);
 	}
 	td {
 		// -moz-user-select: none;
