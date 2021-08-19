@@ -1,6 +1,8 @@
 import Button from "@common/atoms/Button";
+import Dropdown from "@common/atoms/Dropdown";
 import Field from "@common/atoms/Form/Field";
 import Form, { UseForm } from "@common/atoms/Form/Form";
+import Input from "@common/atoms/Form/Input";
 import useIsKeyPressed from "@common/atoms/Hooks/useIsKeyPressed";
 import Icon from "@common/atoms/Icon";
 import Modal from "@common/atoms/Modal";
@@ -15,17 +17,20 @@ import moment from "moment";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { AiFillDelete, AiOutlineUserSwitch, AiTwotoneEye } from "react-icons/ai";
 import { FiEdit, FiEdit3, FiX } from "react-icons/fi";
+import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { Row } from "react-table";
-import { OfflineAppForm, OfflineForm_Schema } from "../../pages_test/OfflineForm";
+import { OfflineAppForm, OfflineForm_Schema } from "./OfflineForm";
 import {
 	OfflineApp,
 	OfflineAppQuery,
+	OfflineAppStatusQuery,
 	setApi_OfflineAppGetQuery,
 	setApi_OfflineAppIdGetQuery,
 	setApi_OfflineAppIdPutQuery,
 	setApi_OfflineAppIdStatusPostQuery,
 	setApi_OfflineAppPostQuery,
+	setApi_OfflineAppStatusPostQuery,
 	useApi_Agents,
 	useApi_Contacts,
 	useApi_OfflineAppGet,
@@ -37,6 +42,7 @@ import {
 	useApi_OfflineAppIdStatusPost,
 	useApi_OfflineAppPost,
 	useApi_OfflineAppPostQuery,
+	useApi_OfflineAppStatusPost,
 	useApi_TypeStatus,
 } from "../../rxjs/observables";
 import s from "./OfflineManage.module.scss";
@@ -44,7 +50,7 @@ import s from "./OfflineManage.module.scss";
 export interface OfflineManageProps {
 	children?: ReactNode | undefined;
 }
-const queryInitial: OfflineAppQuery = { pageSize: 100 };
+const queryInitial: OfflineAppQuery = { pageSize: 2 };
 // const formInitial: FormState = { values: queryInitial };
 const OfflineManage = ({
 	className,
@@ -58,7 +64,9 @@ const OfflineManage = ({
 	const offlines = useApi_OfflineAppGet();
 	const offlinesQuery = useApi_OfflineAppGetQuery();
 	const setOfflineAppGetQueryMerge = (v: Partial<OfflineAppQuery>) => {
-		setApi_OfflineAppGetQuery(offlinesQuery ? { ...offlinesQuery, ...v } : { ...queryInitial, ...v });
+		const query = offlinesQuery ? { ...offlinesQuery, ...v } : { ...queryInitial, ...v };
+		console.log(query);
+		setApi_OfflineAppGetQuery(query);
 	};
 	useEffect(() => setOfflineAppGetQueryMerge({}), []);
 	// -------------------------
@@ -84,6 +92,9 @@ const OfflineManage = ({
 	// * OFFLINE ID STATUS POST **********
 	const offlineIdStatusPost = useApi_OfflineAppIdStatusPost();
 	// -------------------------
+	// * OFFLINE ID STATUS POST **********
+	const offlineStatusPost = useApi_OfflineAppStatusPost();
+	// -------------------------
 	// * CONTACTS GET **********
 	const contacts = useApi_Contacts();
 	// -------------------------
@@ -93,9 +104,9 @@ const OfflineManage = ({
 	// * AGENTS GET **********
 	const agents = useApi_Agents();
 	// -------------------------
-	const [assignValues, setAssignValues] = useStateObject({
-		id: "",
-		agentId: "",
+	const [assignValues, setAssignValues] = useStateObject<OfflineAppStatusQuery>({
+		listIds: [],
+		// agentId: "",
 		statusId: "",
 	});
 
@@ -208,16 +219,16 @@ const OfflineManage = ({
 		}
 	}, [offlineIdPut]);
 	useEffect(() => {
-		if (offlineIdStatusPost) {
-			if (responseIsValid(offlineIdStatusPost)) {
+		if (offlineStatusPost) {
+			if (responseIsValid(offlineStatusPost)) {
 				not.addNotification({ text: "Set status success!" });
 				setShowModal("assign", false);
 				setOfflineAppGetQueryMerge({});
-			} else if (responseIsError(offlineIdStatusPost)) {
+			} else if (responseIsError(offlineStatusPost)) {
 				not.addNotification({ text: "Set status error", type: "error" });
 			}
 		}
-	}, [offlineIdStatusPost]);
+	}, [offlineStatusPost]);
 	// -------------------------
 
 	return (
@@ -225,7 +236,7 @@ const OfflineManage = ({
 			className={className}
 			{...props}
 			onClick={() => {
-				// setSelected([]);
+				setSelected([]);
 			}}
 		>
 			<div
@@ -253,7 +264,7 @@ const OfflineManage = ({
 					</div>
 				</Form>
 			</div>
-			<div style={{ maxHeight: "80vh", overflow: "auto" }} className='card'>
+			<div style={{ maxHeight: "z80vh", overflow: "auto" }} className='card'>
 				<QueryErrorContainer response={offlines}>
 					{({ data: offlines }) =>
 						(offlines?.data?.length && (
@@ -272,7 +283,64 @@ const OfflineManage = ({
 					}
 				</QueryErrorContainer>
 			</div>
-			<div className='margin-2'>{(selected.length && <span>Selected {selected.length} items</span>) || ""}</div>
+
+			{/* Selected message and Pagination */}
+			<div
+				className='margin-1'
+				onClick={(e) => e.stopPropagation()}
+				style={{ display: "flex", alignItems: "center", fontSize: "1em" }}
+			>
+				<div>{(selected.length && <span>Selected {selected.length} items</span>) || ""}</div>
+				<div style={{ flexGrow: 1 }} />
+				<QueryErrorContainer response={offlines}>
+					{({ data: offlines }) => {
+						return (
+							<div style={{ display: "flex", alignItems: "center", gap: ".3em" }}>
+								{offlines.previousPage && (
+									<Button
+										button_type='icon'
+										className='padding-2'
+										onClick={() => setOfflineAppGetQueryMerge({ pageNumber: offlines.pageNumber - 1 })}
+									>
+										<Icon icon={GrFormPrevious} />
+									</Button>
+								)}
+								<span style={{ fontSize: "1.2em" }}>
+									Page{" "}
+									<Input
+										style={{ maxWidth: 20 }}
+										defaultValue={offlines.pageNumber}
+										type='number'
+										min={0}
+										max={offlines.totalPages}
+										onBlur={(e) => {
+											const page = Number(e.target.value);
+											if (
+												!Number.isNaN(page) &&
+												Number.isInteger(page) &&
+												Number.isFinite(page) &&
+												page <= offlines.totalPages &&
+												page > 0
+											)
+												setOfflineAppGetQueryMerge({ pageNumber: page });
+										}}
+									/>
+									/{offlines.totalPages}
+								</span>
+								{offlines.nextPage && (
+									<Button
+										button_type='icon'
+										onClick={() => setOfflineAppGetQueryMerge({ pageNumber: offlines.pageNumber + 1 })}
+									>
+										<Icon icon={GrFormNext} />
+									</Button>
+								)}
+							</div>
+						);
+					}}
+				</QueryErrorContainer>
+			</div>
+
 			{/* To prevent bubbling from modals */}
 			<div onClick={(e) => e.stopPropagation()}>
 				{/* New Form */}
@@ -286,14 +354,26 @@ const OfflineManage = ({
 									{/* <QueryErrorContainer response={offlinePost} feedback feedbackDefault='Sumission Status'>
 										{() => "Submission Success"}
 									</QueryErrorContainer> */}
-									<Button className='full-width shadow-bottom' onClick={submit} disabled={errors || !touched}>
-										Submit New
-									</Button>
+									<Dropdown
+										className='padding-bottom-4'
+										contentProps={{
+											className: cnf(
+												s,
+												errors ? "error-background" : !touched ? "warn-background" : "",
+												"padding-2 border-radius-bottom-2"
+											),
+										}}
+									>
+										<Button className='full-width shadow-bottom' onClick={submit} disabled={!touched || errors}>
+											Submit New
+										</Button>
+										{errors ? "There are form Errors" : !touched ? "Hasn't been edited" : ""}
+									</Dropdown>
 								</OfflineAppForm>
 							</>
 						)}
 					</Form>
-					{toggleButton(() => setShowModal("new"))}
+					{/* {toggleButton(() => setShowModal("new"))} */}
 				</Modal>
 				{/* View/Edit Form */}
 				<Modal isOpen={showModal.view}>
@@ -325,14 +405,31 @@ const OfflineManage = ({
 													{/* <QueryErrorContainer response={offlineIdPut} feedback feedbackDefault='Edit Status'>
 														{() => "Edit Success"}
 													</QueryErrorContainer> */}
-													<Button className='full-width shadow-bottom' onClick={submit} disabled={!touched || errors}>
-														Submit Edit
-													</Button>
+													<Dropdown
+														className='padding-bottom-4'
+														contentProps={{
+															className: cnf(
+																s,
+																errors ? "error-background" : !touched ? "warn-background" : "",
+																"padding-2 border-radius-bottom-2"
+															),
+														}}
+													>
+														<Button className='full-width shadow-bottom' onClick={submit} disabled={!touched || errors}>
+															Submit Edit
+														</Button>
+														{errors ? "There are form Errors" : !touched ? "Hasn't been edited" : ""}
+													</Dropdown>
 												</OfflineAppForm>
 
-												<Modal isOpen={showModal.confirm}>
-													You've made changes, really close?
-													<div style={{ display: "flex" }}>
+												<Modal
+													isOpen={showModal.confirm}
+													className='error-background-10 padding-5'
+													style={{ maxWidth: 250, textAlign: "center" }}
+												>
+													You've made changes
+													<h3>Really close?</h3>
+													<div style={{ display: "flex", justifyContent: "space-around" }}>
 														<Button
 															onClick={() => {
 																setShowModal("confirm");
@@ -341,7 +438,7 @@ const OfflineManage = ({
 														>
 															Yes
 														</Button>
-														<div style={{ flexGrow: 1 }} />
+														{/* <div style={{ flexGrow: 1 }} /> */}
 														<Button onClick={() => setShowModal("confirm")}>No</Button>
 													</div>
 												</Modal>
@@ -371,21 +468,23 @@ const OfflineManage = ({
 							<div className='margin-5'>
 								<h2 className='text-align-center full-width'>
 									Change Status
-									<QueryErrorContainer response={typeStatus}>
-										{({ data: typeStatus }) => (
-											<div style={{ fontSize: ".5em", opacity: 0.8, fontWeight: "normal" }} className='margin-top-2'>
-												Changing to <b>{typeStatus && typeStatus.find((s) => s.id === assignValues.statusId)?.name}</b>
-											</div>
-										)}
-									</QueryErrorContainer>
+									{/* <QueryErrorContainer response={typeStatus}> */}
+									{/* {({ data: typeStatus }) => ( */}
+									<div style={{ fontSize: ".5em", opacity: 0.8, fontWeight: "normal" }} className='margin-top-2'>
+										Changing to <b>{typeStatus?.data?.find((s) => s.id === assignValues.statusId)?.name}</b>
+									</div>
+									{/* )} */}
+									{/* </QueryErrorContainer> */}
 								</h2>
 
 								<Form
 									initialState={{ values: assignValues }}
-									onSubmit={(v) => v && setApi_OfflineAppIdStatusPostQuery(v)}
+									onSubmit={(v) => v && setApi_OfflineAppStatusPostQuery(v)}
 								>
-									<div style={{ display: "flex", gap: "1em", alignItems: "center" }}>
-										{/* <QueryErrorContainer response={typeStatus}>
+									{({ state }) => (
+										<>
+											<div style={{ display: "flex", gap: "1em", alignItems: "center" }}>
+												{/* <QueryErrorContainer response={typeStatus}>
 							{({data:typeStatus}) => <Field name='statusId' type='select' label='Status' placeholder=''>
 							{contacts.map((c) => (
 											<option value={c.id} key={c.id}>
@@ -397,24 +496,31 @@ const OfflineManage = ({
 							</Field>}
 							</QueryErrorContainer> */}
 
-										<QueryErrorContainer response={agents} inline>
-											{({ data: agents }) => (
-												<Field name='agentId' type='select' label='Agent' placeholder=''>
-													{agents.map((c) => (
-														<option value={c.id} key={c.id}>
-															{c.firstName ?? "null"} {c.lastName}
-														</option>
-													))}
-												</Field>
-											)}
-										</QueryErrorContainer>
-									</div>
-									{/* <QueryErrorContainer response={offlineIdStatusPost} feedback childrenDefault='Set Status Response'>
+												{
+													// Only show when type is not VOID
+													typeStatus?.data?.find((t) => t.id === state.values.statusId)?.code !== "VOID" && (
+														<QueryErrorContainer response={agents} inline>
+															{({ data: agents }) => (
+																<Field name='agentId' type='select' label='Agent' placeholder=''>
+																	{agents.map((c) => (
+																		<option value={c.id} key={c.id}>
+																			{c.firstName ?? "null"} {c.lastName}
+																		</option>
+																	))}
+																</Field>
+															)}
+														</QueryErrorContainer>
+													)
+												}
+											</div>
+											{/* <QueryErrorContainer response={offlineStatusPost} feedback childrenDefault='Set Status Response'>
 									{() => "Set Status Success"}
 								</QueryErrorContainer> */}
-									<div style={{ textAlign: "center" }}>
-										<UseForm>{({ submit }) => <Button onClick={submit}>Set Status</Button>}</UseForm>
-									</div>
+											<div style={{ textAlign: "center" }}>
+												<UseForm>{({ submit }) => <Button onClick={submit}>Set Status</Button>}</UseForm>
+											</div>{" "}
+										</>
+									)}
 								</Form>
 							</div>
 						</>
@@ -450,7 +556,7 @@ const OfflineManage = ({
 									console.error("Coulnd't find ASG typegeneric");
 									return;
 								}
-								setAssignValues({ ...assignValues, id, statusId: ts.id });
+								setAssignValues({ listIds: selected, statusId: ts.id });
 								setToEdit(id);
 								setShowModal("assign");
 							}}
@@ -470,7 +576,7 @@ const OfflineManage = ({
 									console.error("Coulnd't find VOID typegeneric");
 									return;
 								}
-								setAssignValues({ ...assignValues, id, statusId: ts.id });
+								setAssignValues({ listIds: selected, statusId: ts.id, agentId: undefined });
 								setToEdit(id);
 								setShowModal("assign");
 							}}

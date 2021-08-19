@@ -5,7 +5,7 @@ import {
 	createAPIFetchStatic,
 	ResponseFetch,
 } from "@common/rxjs/rxjs_utils";
-import { OfflineAppFormType } from "../pages_test/OfflineForm_val";
+import { OfflineAppFormType } from "../components/pages/OfflineForm_val";
 
 type DetailQuery = { id: string };
 type SuccessResponse = { success: boolean };
@@ -229,6 +229,27 @@ export const [setApi_OfflineAppIdPutQuery, useApi_OfflineAppIdPutQuery, useApi_O
 		{ shareReplay: false }
 	);
 // ----------------------
+// * OFFLINEAPP/STATUS POST *********
+export interface OfflineAppStatusQuery {
+	listIds: string[];
+	statusId: string;
+	agentId?: string;
+}
+export const [
+	setApi_OfflineAppStatusPostQuery,
+	useApi_OfflineAppStatusPostQuery,
+	useApi_OfflineAppStatusPost,
+	offlineAppStatusPost$,
+] = createAPIFetchCustom<OfflineAppStatusQuery, ResponseFetch<OfflineAppStatus[]>>(
+	({ ...v }) =>
+		createAPIFetch<OfflineAppStatus[]>(`/OfflineApp/status`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(v),
+		}),
+	{ shareReplay: false }
+);
+// ----------------------
 
 // * OFFLINEAPP/ID/STATUS GET *********
 export interface OfflineAppStatus {
@@ -247,8 +268,9 @@ export const [
 // ----------------------
 
 // * OFFLINEAPP/ID/STATUS POST *********
-export interface OfflineAppStatusQuery {
-	statusId?: string;
+export interface OfflineAppIdStatusQuery {
+	id: string;
+	statusId: string;
 	agentId?: string;
 }
 export const [
@@ -256,7 +278,7 @@ export const [
 	useApi_OfflineAppIdStatusPostQuery,
 	useApi_OfflineAppIdStatusPost,
 	offlineAppIdStatusPost$,
-] = createAPIFetchCustom<DetailQuery & OfflineAppStatusQuery, ResponseFetch<OfflineAppStatus>>(
+] = createAPIFetchCustom<OfflineAppIdStatusQuery, ResponseFetch<OfflineAppStatus>>(
 	({ id, ...v }) =>
 		createAPIFetch<OfflineAppStatus>(`/OfflineApp/${id}/status`, {
 			method: "POST",

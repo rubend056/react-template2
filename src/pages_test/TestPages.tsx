@@ -9,7 +9,7 @@ import DrawerTogglePreset from "@common/molecules/DrawerTogglePreset";
 import ThemeTogglePreset from "@common/molecules/ThemeTogglePreset";
 import TestPage0 from "../pages_test/TestPage0";
 import EDEForm from "./EDEForm";
-import OfflineApp from "./OfflineForm";
+import OfflineApp from "../components/pages/OfflineForm";
 import APITest from "./APITest";
 import Login from "../components/pages/Login";
 import PrivateRoute from "../components/atoms/PrivateRoute";

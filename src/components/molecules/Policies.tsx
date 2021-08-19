@@ -6,15 +6,13 @@ import Icon from "@common/atoms/Icon";
 import QueryErrorContainer from "@common/atoms/QueryErrorContainer";
 import { columnsQuick } from "@common/atoms/Table";
 import TableSimple from "@common/atoms/TableSimple";
-import { ResponseFetch, createAPIFetch, queryString, useObservable } from "@common/rxjs/rxjs_utils";
-import { bind } from "@react-rxjs/core";
-import { createSignal } from "@react-rxjs/utils";
+import { createAPIFetch, queryString, useObservable } from "@common/rxjs/rxjs_utils";
 import { isEqual } from "lodash";
 import React, { useEffect, useState } from "react";
 import { AiTwotoneEye } from "react-icons/ai";
 import { FaFileExcel, FaFileExport, FaFilePdf, FaFilter } from "react-icons/fa";
 import { useHistory, useParams, useRouteMatch } from "react-router";
-import { combineLatest, filter, from, map, Observable, of, Subject, switchMap } from "rxjs";
+import { filter, from, map, Subject, switchMap } from "rxjs";
 import {
 	PolicyQuery,
 	setApi_PolicyDetailQuery,

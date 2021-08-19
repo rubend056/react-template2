@@ -5,7 +5,7 @@ import Icon from "@common/atoms/Icon";
 import { useNotifications } from "@common/atoms/Notifications";
 import { useEffect } from "react";
 import { FiX } from "react-icons/fi";
-import { setApi_OfflineAppPostQuery, useApi_OfflineAppPost } from "../rxjs/observables";
+import { setApi_OfflineAppPostQuery, useApi_OfflineAppPost } from "../../rxjs/observables";
 import { scrollToElement } from "@common/utils_react";
 import Divider from "@common/atoms/Divider";
 import { Field } from "@common/atoms/Form/Field";
@@ -228,69 +228,77 @@ const OfflineApp = (props) => {
 		}
 	};
 	return (
-		<Form validationSchema={schema} onSubmit={onSubmit}>
-			<Drawer
-				right
-				fixed
-				drawer={
-					<UseForm>
-						{({ state }) => (
-							<textarea
-								readOnly
-								value={JSON.stringify(state, null, 4)}
-								style={{
-									height: "100%",
-									width: "100%",
-								}}
-								className='background-background-active'
-							></textarea>
-						)}
-					</UseForm>
-				}
-				maxWidth={400}
-			>
+		<div style={{ position: "relative" }}>
+			<Form validationSchema={schema} onSubmit={onSubmit}>
 				<Drawer
+					right
 					fixed
-					floating
-					drawer={Object.entries(sections).map(([k, v]) => (
-						<Button
-							key={k}
-							className='full-width border-radius-0'
-							onClick={() => {
-								scrollToElement(document?.getElementById(k), { offset: -80 });
-							}}
-						>
-							{v.name}
-						</Button>
-					))}
-					contentProps={{ style: { textAlign: "center" } }}
-				>
-					<DrawerTogglePreset
-						style={{ position: "sticky", display: "inline-block", top: "50%", transform: "translateY(-50%)", left: 12 }}
-						className='primary-background'
-					/>
-
-					<OfflineAppForm>
+					drawer={
 						<UseForm>
-							{({ submit }) => (
-								<Button className='full-width primary-background-5' onClick={() => submit()}>
-									Submit
-								</Button>
+							{({ state }) => (
+								<textarea
+									readOnly
+									value={JSON.stringify(state, null, 4)}
+									style={{
+										height: "100%",
+										width: "100%",
+									}}
+									className='background-background-active'
+								></textarea>
 							)}
 						</UseForm>
-					</OfflineAppForm>
-				</Drawer>
-
-				<DrawerToggle>
-					<Button
-						style={{ position: "fixed", bottom: 12, right: 12, display: "inline-block" }}
-						className='primary-background'
+					}
+					maxWidth={400}
+				>
+					<Drawer
+						fixed
+						floating
+						drawer={Object.entries(sections).map(([k, v]) => (
+							<Button
+								key={k}
+								className='full-width border-radius-0'
+								onClick={() => {
+									scrollToElement(document?.getElementById(k), { offset: -80 });
+								}}
+							>
+								{v.name}
+							</Button>
+						))}
+						contentProps={{ style: { textAlign: "center" } }}
 					>
-						FormState
-					</Button>
-				</DrawerToggle>
-			</Drawer>
-		</Form>
+						<DrawerTogglePreset
+							style={{
+								position: "fixed",
+								display: "inline-block",
+								top: "50%",
+								transform: "translateY(-50%)",
+								left: 12,
+							}}
+							className='primary-background'
+						/>
+
+						<OfflineAppForm>
+							<UseForm>
+								{({ submit }) => (
+									<Button className='full-width primary-background-5' onClick={() => submit()}>
+										Submit
+									</Button>
+								)}
+							</UseForm>
+						</OfflineAppForm>
+					</Drawer>
+
+					<DrawerToggle>
+						<Button
+							style={{ position: "fixed", bottom: 12, right: 12, display: "inline-block" }}
+							className='primary-background'
+						>
+							FormState
+						</Button>
+					</DrawerToggle>
+				</Drawer>
+			</Form>
+		</div>
 	);
 };
 export default OfflineApp;

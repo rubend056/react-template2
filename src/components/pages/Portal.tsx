@@ -27,7 +27,7 @@ import {
 	YAxis,
 } from "recharts";
 import { setApi_SummaryQuery, useApi_Contacts, useApi_Summary } from "../../rxjs/observables";
-import OfflineApp from "../../pages_test/OfflineForm";
+import OfflineApp from "./OfflineForm";
 import s from "./Portal.module.scss";
 import user_icon from "../../glasses_man_small.jpg";
 import Toolbar from "@common/organisms/Toolbar";
