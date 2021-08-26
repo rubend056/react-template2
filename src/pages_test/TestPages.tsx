@@ -12,13 +12,14 @@ import EDEForm from "./EDEForm";
 import OfflineApp from "../components/pages/OfflineForm";
 import APITest from "./APITest";
 import Login from "../components/pages/Login";
-import PrivateRoute from "../components/atoms/PrivateRoute";
+import PrivateRoute from "@common/atoms/PrivateRoute";
+import { isLogin } from "@common/utils_react";
 
 const testPages = [
 	{ comp: TestPage0, name: "Test 0" },
 	{ comp: EDEForm, name: "EDE Form" },
 	{ comp: OfflineApp, name: "Offline Form" },
-	{ comp: Portal, name: "Portal", protected: true },
+	{ comp: Portal, name: "Portal", protected: true, protected_assert: isLogin, protected_assertFalse: "/login" },
 	{ comp: APITest, name: "API Test" },
 ].map((v, i) => {
 	return { route: `/${v.name.replace(/ /g, "_").toLowerCase()}`, ...v };
@@ -32,7 +33,13 @@ const TestPages = (props) => {
 	));
 	const testRoutes = testPages.map((v) => {
 		return v.protected ? (
-			<PrivateRoute key={v.route} path={v.route} component={v.comp} />
+			<PrivateRoute
+				key={v.route}
+				assert={v.protected_assert}
+				onAssertFalse={v.protected_assertFalse}
+				path={v.route}
+				component={v.comp}
+			/>
 		) : (
 			<Route key={v.route} path={v.route} component={v.comp} />
 		);

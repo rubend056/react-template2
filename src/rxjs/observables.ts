@@ -197,9 +197,11 @@ export const [setApi_OfflineAppPostQuery, useApi_OfflineAppPostQuery, useApi_Off
 	createAPIFetchCustom<OfflineAppFormType, any>(
 		(v) =>
 			createAPIFetch(`/OfflineApp`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(v),
+				init: {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(v),
+				},
 			}),
 		{ shareReplay: false }
 	);
@@ -222,9 +224,11 @@ export const [setApi_OfflineAppIdPutQuery, useApi_OfflineAppIdPutQuery, useApi_O
 	createAPIFetchCustom<DetailQuery & OfflineAppFormType, ResponseFetch<SuccessResponse>>(
 		({ id, ...v }) =>
 			createAPIFetch<SuccessResponse>(`/OfflineApp/${id}`, {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(v),
+				init: {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(v),
+				},
 			}),
 		{ shareReplay: false }
 	);
@@ -243,9 +247,11 @@ export const [
 ] = createAPIFetchCustom<OfflineAppStatusQuery, ResponseFetch<OfflineAppStatus[]>>(
 	({ ...v }) =>
 		createAPIFetch<OfflineAppStatus[]>(`/OfflineApp/status`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(v),
+			init: {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(v),
+			},
 		}),
 	{ shareReplay: false }
 );
@@ -281,10 +287,98 @@ export const [
 ] = createAPIFetchCustom<OfflineAppIdStatusQuery, ResponseFetch<OfflineAppStatus>>(
 	({ id, ...v }) =>
 		createAPIFetch<OfflineAppStatus>(`/OfflineApp/${id}/status`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(v),
+			init: {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(v),
+			},
 		}),
 	{ shareReplay: false }
 );
+// ----------------------
+
+// ****************** AUTHENTICATION ****************
+if (!process.env.REACT_APP_API_URL_AUTH) throw new Error("REACT_APP_API_URL_AUTH not defined?");
+const baseURLAuth = process.env.REACT_APP_API_URL_AUTH + "/api/auth";
+export interface Login {
+	token: string;
+}
+interface AuthCommon {
+	email: string;
+}
+export interface LoginQuery extends AuthCommon {
+	password: string;
+}
+export interface RegisterQuery extends LoginQuery {}
+export const [setApi_LoginPostQuery, useApi_LoginPostQuery, useApi_LoginPost, loginPost$] = createAPIFetchCustom<
+	LoginQuery,
+	ResponseFetch<Login>
+>(
+	({ ...v }) =>
+		createAPIFetch<Login>(`/login`, {
+			init: {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(v),
+			},
+			baseURL: baseURLAuth,
+		}),
+	{ shareReplay: false }
+);
+
+export const [setApi_RegisterPostQuery, useApi_RegisterPostQuery, useApi_RegisterPost, registerPost$] =
+	createAPIFetchCustom<RegisterQuery, ResponseFetch<boolean>>(
+		({ ...v }) =>
+			createAPIFetch<boolean>(`/register`, {
+				init: {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(v),
+				},
+				baseURL: baseURLAuth,
+			}),
+		{ shareReplay: false }
+	);
+
+export interface ForgotPassQuery extends AuthCommon {}
+export const [setApi_ForgotPassPostQuery, useApi_ForgotPassPostQuery, useApi_ForgotPassPost, forgotPassPost$] =
+	createAPIFetchCustom<ForgotPassQuery, ResponseFetch<boolean>>(
+		({ ...v }) =>
+			createAPIFetch<boolean>(`/forgotPassword`, {
+				init: {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(v),
+				},
+				baseURL: baseURLAuth,
+			}),
+		{ shareReplay: false }
+	);
+export interface ResetPassQuery extends LoginQuery {
+	code: string;
+}
+export const [setApi_ResetPassPostQuery, useApi_ResetPassPostQuery, useApi_ResetPassPost, resetPassPost$] =
+	createAPIFetchCustom<ResetPassQuery, ResponseFetch<boolean>>(
+		({ ...v }) =>
+			createAPIFetch<boolean>(`/resetPassword`, {
+				init: {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(v),
+				},
+				baseURL: baseURLAuth,
+			}),
+		{ shareReplay: false }
+	);
+
+// ----------------------
+
+// * CONFIGURATION *********
+export interface ConfigurationAPI {
+	variable: string;
+	value: string;
+	description: string;
+	type: "date" | "string" | "integer" | "decimal" | "boolean";
+}
+export const [useApi_Configuration, configuration$] = createAPIFetchStatic<ConfigurationAPI[]>("/Configuration");
 // ----------------------

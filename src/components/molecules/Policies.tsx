@@ -48,9 +48,11 @@ const downloadP$ = downloadPQuery$.pipe(
 				// Define endpoint
 				`/policies${queryString(queryParams)}`,
 				// Define Header
-				{ headers: { Accept: getAcceptHeader(type) } },
-				// Include type in values
-				(res) => from(res.blob()).pipe(map((blob) => ({ blob, type })))
+				{
+					init: { headers: { Accept: getAcceptHeader(type) } },
+					// Include type in values
+					okReturn: (res) => from(res.blob()).pipe(map((blob) => ({ blob, type }))),
+				}
 			)
 				// Don't let anything other than success through!
 				.pipe(

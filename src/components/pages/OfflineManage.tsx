@@ -46,6 +46,7 @@ import {
 	useApi_TypeStatus,
 } from "../../rxjs/observables";
 import s from "./OfflineManage.module.scss";
+import { useQueryAction } from "@common/atoms/Hooks/useQueryAction";
 
 export interface OfflineManageProps {
 	children?: ReactNode | undefined;
@@ -196,39 +197,36 @@ const OfflineManage = ({
 	// -------------------------
 	// * API ON ACTIONS *
 	const not = useNotifications();
-	useEffect(() => {
-		if (offlinePost) {
-			if (responseIsValid(offlinePost)) {
-				not.addNotification({ text: "Submission Success!" });
-				setShowModal("new", false);
-				setOfflineAppGetQueryMerge({});
-			} else if (responseIsError(offlinePost)) {
-				not.addNotification({ text: "Submission error", type: "error" });
-			}
-		}
-	}, [offlinePost]);
-	useEffect(() => {
-		if (offlineIdPut) {
-			if (responseIsValid(offlineIdPut)) {
-				not.addNotification({ text: "Edit success!" });
-				setShowModal("view", false);
-				setOfflineAppGetQueryMerge({});
-			} else if (responseIsError(offlineIdPut)) {
-				not.addNotification({ text: "Edit error", type: "error" });
-			}
-		}
-	}, [offlineIdPut]);
-	useEffect(() => {
-		if (offlineStatusPost) {
-			if (responseIsValid(offlineStatusPost)) {
-				not.addNotification({ text: "Set status success!" });
-				setShowModal("assign", false);
-				setOfflineAppGetQueryMerge({});
-			} else if (responseIsError(offlineStatusPost)) {
-				not.addNotification({ text: "Set status error", type: "error" });
-			}
-		}
-	}, [offlineStatusPost]);
+	useQueryAction(offlinePost, {
+		onValid: (v) => {
+			not.addNotification({ text: "Submission Success!" });
+			setShowModal("new", false);
+			setOfflineAppGetQueryMerge({});
+		},
+		onError: (v) => {
+			not.addNotification({ text: "Submission error", type: "error" });
+		},
+	});
+	useQueryAction(offlineIdPut, {
+		onValid: (v) => {
+			not.addNotification({ text: "Edit success!" });
+			setShowModal("view", false);
+			setOfflineAppGetQueryMerge({});
+		},
+		onError: (v) => {
+			not.addNotification({ text: "Edit error", type: "error" });
+		},
+	});
+	useQueryAction(offlineIdPut, {
+		onValid: (v) => {
+			not.addNotification({ text: "Set status success!" });
+			setShowModal("assign", false);
+			setOfflineAppGetQueryMerge({});
+		},
+		onError: (v) => {
+			not.addNotification({ text: "Set status error", type: "error" });
+		},
+	});
 	// -------------------------
 
 	return (

@@ -32,7 +32,7 @@
     "react-dom": "^17.0.2",
     "react-dropzone": "^11.3.4",
     "react-icons": "^4.2.0",
-    "react-loader-spinner": "^4.0.0",
+    "react-loading": "^2.0.3",
     "react-redux": "^7.2.4",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
@@ -46,14 +46,14 @@
     "yup": "^0.32.9"
   },
   "scripts": {
-    "start": "cross-env HOST=0.0.0.0 GENERATE_SOURCEMAP=true BROWSER=none craco start",
+    "start": "cross-env HOST=0.0.0.0 GENERATE_SOURCEMAP=true PORT=3005 BROWSER=none craco start",
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
     "generate": "plop",
-    "predeploy": "npm run build",
+    "predeploy": "export PUBLIC_URL='https://rubend056.github.io/react-template2' && npm run build",
     "build_dls": "export PUBLIC_URL='https://staging.dls-innovation.com/portal' && npm run build",
-    "deploy": "export PUBLIC_URL='https://rubend056.github.io/react-template2' && gh-pages -d build",
+    "deploy": "gh-pages -d build",
     "prepare": "husky install"
   },
   "eslintConfig": {

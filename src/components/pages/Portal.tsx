@@ -39,7 +39,7 @@ import MyInfo from "./MyInfo";
 import MyCalendar from "./MyCalendar";
 import QueryErrorContainer from "@common/atoms/QueryErrorContainer";
 import Login from "./Login";
-import { isLogin } from "../atoms/PrivateRoute";
+import { isLogin } from "@common/utils_react";
 
 export const usePaths = (paths: string[] | string) => {
 	const match = useRouteMatch();
