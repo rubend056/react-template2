@@ -7,7 +7,7 @@ import useIsKeyPressed from "@common/atoms/Hooks/useIsKeyPressed";
 import Icon from "@common/atoms/Icon";
 import Modal from "@common/atoms/Modal";
 import { useNotifications } from "@common/atoms/Notifications";
-import QueryErrorContainer from "@common/atoms/QueryErrorContainer";
+import QueryErrorContainer, { QueryLoadingContainer } from "@common/atoms/QueryErrorContainer";
 import { columnsQuick } from "@common/atoms/Table";
 import TableSimple from "@common/atoms/TableSimple";
 import { useTheme } from "@common/atoms/Theme";
@@ -159,7 +159,7 @@ const OfflineManage = ({
 			Header: "DOB",
 			Cell: (cell) => moment(cell.value).format("YYYY/MM/DD"),
 		},
-		"email;phone;address;city;annualIncome,Annual Income;planSelected,Plan Selected;agentName,Agent Name",
+		"email;phone;address;city;annualIncome,Annual Income;planSelected,Plan Selected;agentName,Agent Name;status",
 		{
 			id: "ShowButton",
 			accessor: "id",
@@ -217,7 +217,7 @@ const OfflineManage = ({
 			not.addNotification({ text: "Edit error", type: "error" });
 		},
 	});
-	useQueryAction(offlineIdPut, {
+	useQueryAction(offlineStatusPost, {
 		onValid: (v) => {
 			not.addNotification({ text: "Set status success!" });
 			setShowModal("assign", false);
@@ -226,6 +226,10 @@ const OfflineManage = ({
 		onError: (v) => {
 			not.addNotification({ text: "Set status error", type: "error" });
 		},
+		// onDefault: (v) => {
+		// 	console.warn(v)
+		// 	not.addNotification({text: String(v), type:'warning'})
+		// }
 	});
 	// -------------------------
 
@@ -362,9 +366,14 @@ const OfflineManage = ({
 											),
 										}}
 									>
-										<Button className='full-width shadow-bottom' onClick={submit} disabled={!touched || errors}>
-											Submit New
-										</Button>
+										<QueryLoadingContainer response={offlinePost} className='full-width'>
+											{(response) => (
+												<Button className='full-width shadow-bottom' onClick={submit} disabled={!touched || errors}>
+													Submit New
+												</Button>
+											)}
+										</QueryLoadingContainer>
+
 										{errors ? "There are form Errors" : !touched ? "Hasn't been edited" : ""}
 									</Dropdown>
 								</OfflineAppForm>
@@ -413,10 +422,19 @@ const OfflineManage = ({
 															),
 														}}
 													>
-														<Button className='full-width shadow-bottom' onClick={submit} disabled={!touched || errors}>
-															Submit Edit
-														</Button>
-														{errors ? "There are form Errors" : !touched ? "Hasn't been edited" : ""}
+														<QueryLoadingContainer response={offlineIdPut} className='full-width'>
+															{(response) => (
+																<Button
+																	className='full-width shadow-bottom'
+																	onClick={submit}
+																	disabled={!touched || errors || response?.loading}
+																>
+																	Submit Edit
+																</Button>
+															)}
+														</QueryLoadingContainer>
+														{!offlineIdPut?.loading &&
+															(errors ? "There are form Errors" : !touched ? "Hasn't been edited" : "")}
 													</Dropdown>
 												</OfflineAppForm>
 
@@ -515,7 +533,17 @@ const OfflineManage = ({
 									{() => "Set Status Success"}
 								</QueryErrorContainer> */}
 											<div style={{ textAlign: "center" }}>
-												<UseForm>{({ submit }) => <Button onClick={submit}>Set Status</Button>}</UseForm>
+												<UseForm>
+													{({ submit }) => (
+														<QueryLoadingContainer response={offlineStatusPost} className='full-width'>
+															{(response) => (
+																<Button onClick={submit} disabled={!!response?.loading}>
+																	Set Status
+																</Button>
+															)}
+														</QueryLoadingContainer>
+													)}
+												</UseForm>
 											</div>{" "}
 										</>
 									)}

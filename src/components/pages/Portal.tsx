@@ -4,42 +4,26 @@ import Drawer, { DrawerContentData } from "@common/atoms/Drawer";
 import Select from "@common/atoms/Form/Select";
 import Apply from "@common/atoms/HOC/Apply";
 import Icon from "@common/atoms/Icon";
-import Table, { columnsQuick } from "@common/atoms/Table";
+import QueryErrorContainer from "@common/atoms/QueryErrorContainer";
 import { useTheme } from "@common/atoms/Theme";
+import DrawerTogglePreset from "@common/molecules/DrawerTogglePreset";
+import Toolbar from "@common/organisms/Toolbar";
 import { cnf } from "@common/utils";
-import React, { CSSProperties, ReactNode, useState } from "react";
+import { isLogin } from "@common/utils_react";
+import React, { ReactNode, useState } from "react";
 import { AiOutlineBell, AiOutlinePieChart, AiOutlineUser } from "react-icons/ai";
 import { BiNews } from "react-icons/bi";
-import { FaUserCircle } from "react-icons/fa";
 import { Link, Redirect, Route, Switch, useRouteMatch } from "react-router-dom";
-import {
-	Bar,
-	BarChart,
-	CartesianGrid,
-	ComposedChart,
-	Legend,
-	Line,
-	Pie,
-	PieChart,
-	ResponsiveContainer,
-	Tooltip,
-	XAxis,
-	YAxis,
-} from "recharts";
-import { setApi_SummaryQuery, useApi_Contacts, useApi_Summary } from "../../rxjs/observables";
-import OfflineApp from "./OfflineForm";
-import s from "./Portal.module.scss";
 import user_icon from "../../glasses_man_small.jpg";
-import Toolbar from "@common/organisms/Toolbar";
-import DrawerTogglePreset from "@common/molecules/DrawerTogglePreset";
+import { setApi_SummaryQuery, useApi_Contacts } from "../../rxjs/observables";
 import Dashboard from "../molecules/Dashboard";
 import Policies, { PoliciesDetail } from "../molecules/Policies";
-import OfflineManage from "./OfflineManage";
-import MyInfo from "./MyInfo";
-import MyCalendar from "./MyCalendar";
-import QueryErrorContainer from "@common/atoms/QueryErrorContainer";
 import Login from "./Login";
-import { isLogin } from "@common/utils_react";
+import MyAccount from "./MyAccount";
+import MyCalendar from "./MyCalendar";
+import OfflineApp from "./OfflineForm";
+import OfflineManage from "./OfflineManage";
+import s from "./Portal.module.scss";
 
 export const usePaths = (paths: string[] | string) => {
 	const match = useRouteMatch();
@@ -77,7 +61,7 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 	const linkButton = (children) => <Button>{children}</Button>;
 	const pathArr = [
 		"dashboard",
-		"info",
+		"account",
 		"policies",
 		"stats",
 		"commisions",
@@ -116,7 +100,7 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 			),
 			content: (
 				<>
-					{links.info("My Info")}
+					{links.account("My Account")}
 					{links.policies("My Policies")}
 					{links.stats("My Stats")}
 					{links.commisions("My Commisions")}
@@ -197,7 +181,7 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 			<Route path={pathNames.offline_manage} component={OfflineManage} />
 			<Route path={`${pathNames.policies}/:id`} component={PoliciesDetail} />
 			<Route path={pathNames.policies} component={Policies} />
-			<Route path={pathNames.info} component={MyInfo} />
+			<Route path={pathNames.account} component={MyAccount} />
 			<Route path={pathNames.calendar} component={MyCalendar} />
 			<Route path={pathNames.offline_form} component={OfflineApp} />
 			<Route>Not Implemented</Route>
