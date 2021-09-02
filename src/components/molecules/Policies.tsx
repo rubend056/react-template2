@@ -4,7 +4,7 @@ import Field from "@common/atoms/Form/Field";
 import Form from "@common/atoms/Form/Form";
 import Icon from "@common/atoms/Icon";
 import QueryErrorContainer from "@common/atoms/QueryErrorContainer";
-import { columnsQuick } from "@common/atoms/Table";
+import { columnsQuick } from "@common/atoms/TableSimple";
 import TableSimple from "@common/atoms/TableSimple";
 import { createAPIFetch, queryString, useObservable } from "@common/rxjs/rxjs_utils";
 import { isEqual } from "lodash";

@@ -8,7 +8,7 @@ import Icon from "@common/atoms/Icon";
 import Modal from "@common/atoms/Modal";
 import { useNotifications } from "@common/atoms/Notifications";
 import QueryErrorContainer, { QueryLoadingContainer } from "@common/atoms/QueryErrorContainer";
-import { columnsQuick } from "@common/atoms/Table";
+import { columnsQuick } from "@common/atoms/TableSimple";
 import TableSimple from "@common/atoms/TableSimple";
 import { useTheme } from "@common/atoms/Theme";
 import { responseIsError, responseIsValid } from "@common/rxjs/rxjs_utils";
