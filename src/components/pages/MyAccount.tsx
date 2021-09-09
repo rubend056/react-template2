@@ -1,10 +1,10 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useDebugValue } from "react";
 import s from "./MyAccount.module.scss";
 import { useTheme } from "@common/atoms/Theme";
 import { cnf } from "@common/utils";
 import Input from "@common/atoms/Form/Input";
 import Image from "@common/atoms/Image";
-import user_icon from "../../glasses_man_small.jpg";
+import user_icon from "../../profile.svg";
 import Button from "@common/atoms/Button";
 import Apply from "@common/atoms/HOC/Apply";
 import Field from "@common/atoms/Form/Field";
@@ -14,22 +14,10 @@ import { useState } from "react";
 import { UseLocation, UseRouteMatch } from "@common/atoms/Hooks/routerHooks";
 import { capitalize } from "voca";
 import { useCallback } from "react";
-
-const Payment = () => {
-	return (
-		<Form>
-			<div style={{ display: "inline-flex", flexFlow: "column nowrap", alignItems: "center", maxWidth: 300 }}>
-				<Field name='account_number' label='Account Number' editConfirm className='full-width' />
-				<Field name='routing_number' label='Routing Number' editConfirm className='full-width' />
-				<Field name='payment_method' label='Payment Method' type='select' placeholder='' className='full-width'>
-					<option value='ach'>ACH</option>
-					<option value='check'>Check</option>
-					<option value='wire'>Wire Transfer</option>
-				</Field>
-			</div>
-		</Form>
-	);
-};
+import Icon from "@common/atoms/Icon";
+import { MdLock } from "react-icons/md";
+import { useApi_User, useApi_UserPhoto, user$, userPayment$ } from "../../rxjs/observables";
+import { responseIsValid, useObserableEvent } from "@common/rxjs/rxjs_utils";
 
 export interface MyInfoProps {
 	children?: ReactNode | undefined;
@@ -38,10 +26,15 @@ export interface MyInfoProps {
 const MyAccount = ({ className, children, ...props }: MyInfoProps & React.HTMLAttributes<HTMLDivElement>) => {
 	const theme = useTheme().name;
 	className = cnf(s, `comp text-align-center`, theme, className);
+	const [edit, setEdit] = useState(false);
 
 	const [userData, setUserData] = useState<any>({
-		values: { name: "Ruben D Prieto", email: "rubendariopm14@gmail.com" },
+		values: { name: "Ruben D Prieto", email: "rubendariopm14@gmail.com", phone: "(305)-496-3554" },
 	});
+	const submitUserChanges = (v) => {
+		// Should submit all data to PATCH and update UI accordingly
+		console.log(JSON.stringify(v, null, 2));
+	};
 	const { url, path } = useRouteMatch();
 
 	const Section = useCallback(
@@ -55,11 +48,33 @@ const MyAccount = ({ className, children, ...props }: MyInfoProps & React.HTMLAt
 		[]
 	);
 	const [showPayment, setShowPayment] = useState(false);
+	const userPhoto = useApi_UserPhoto();
+	// Merge user data into our own
+	useObserableEvent(user$, (user) => {
+		const userv = responseIsValid(user);
+		if (userv) {
+			setUserData((ud) => ({ ...ud, values: { ...ud.values, ...userv.data } }));
+		}
+	});
+	useObserableEvent(
+		userPayment$,
+		(user) => {
+			const userv = responseIsValid(user);
+			if (userv) {
+				setUserData((ud) => ({ ...ud, values: { ...ud.values, ...userv.data } }));
+			}
+		},
+		showPayment
+	);
 
 	return (
 		<div className={className}>
-			<Section header='Personal'>
-				<Form state={userData} setState={setUserData}>
+			<Form state={userData} setState={setUserData} onSubmitChanges={submitUserChanges}>
+				<Section header='Personal'>
+					<Button style={{ position: "absolute", top: 10, right: 10 }} onClick={() => setEdit(!edit)}>
+						{!edit ? "Edit" : "Cancel"}
+					</Button>
+
 					<div style={{ display: "flex", flexFlow: "column nowrap", alignItems: "center" }} className='padding-2'>
 						<div
 							style={{
@@ -72,39 +87,65 @@ const MyAccount = ({ className, children, ...props }: MyInfoProps & React.HTMLAt
 							}}
 						>
 							<div className={cnf(s, "change-photo")}>Change Photo</div>
-							<Image src={user_icon} alt='Glasses' />
+							{userPhoto?.data ? (
+								<img src={`data:image/png;base64,${userPhoto?.data}`} alt='Profile' />
+							) : (
+								<img src={user_icon} alt='Profile Default' />
+							)}
 						</div>
 						{/* <div>{userData.values.name}</div> */}
-						<Field name='name' label='Name' editConfirm />
-
-						<Field name='email' label='Email' editConfirm />
+						<Field name='name' label='Name' readOnly={!edit || undefined} />
+						<Field name='email' label='Email' readOnly={!edit || undefined} />
+						<Field name='phone' label='Phone' readOnly={!edit || undefined} />
 					</div>
 					{/* <div className='padding-3'>
 						<Field type='file' className='full-width' label='Profile Picture' direction='left' />
 
 						<Button className='border'>Upload</Button>
 					</div> */}
-				</Form>
-			</Section>
-			<Section header='Security'>
-				<Form state={userData} setState={setUserData} initialState={{ values: { password: "123456" } }}>
-					<Field type='password' label='Password' editConfirm disabled name='password' />
-				</Form>
-			</Section>
-			<Section header='Payment'>
-				{showPayment ? (
-					<Payment />
-				) : (
-					<Button
-						className='error-background border'
-						onClick={() => {
-							setShowPayment(true);
-						}}
-					>
-						Show Payment Info
-					</Button>
-				)}
-			</Section>
+				</Section>
+				<Section header='Security'>
+					{/* <Form state={userData} setState={setUserData}> */}
+					<Field type='password' label='Password' readOnly={!edit || undefined} name='password' />
+					{/* </Form> */}
+				</Section>
+				<Section header='Payment'>
+					{showPayment ? (
+						<div style={{ display: "inline-flex", flexFlow: "column nowrap", alignItems: "center", maxWidth: 300 }}>
+							<Field
+								name='account_number'
+								label='Account Number'
+								readOnly={!edit || undefined}
+								className='full-width'
+							/>
+							<Field
+								name='routing_number'
+								label='Routing Number'
+								readOnly={!edit || undefined}
+								className='full-width'
+							/>
+							{!edit || undefined ? (
+								<Field name='payment_method' label='Payment Method' readOnly className='full-width' />
+							) : (
+								<Field name='payment_method' label='Payment Method' type='select' placeholder='' className='full-width'>
+									<option value='ach'>ACH</option>
+									<option value='check'>Check</option>
+									<option value='wire'>Wire Transfer</option>
+								</Field>
+							)}
+						</div>
+					) : (
+						<Button
+							className='error-border'
+							onClick={() => {
+								setShowPayment(true);
+							}}
+						>
+							<Icon icon={MdLock} /> Show Payment Info
+						</Button>
+					)}
+				</Section>
+			</Form>
 
 			{/* <div style={{ display: "flex" }}>
 				<div className='border-right'>

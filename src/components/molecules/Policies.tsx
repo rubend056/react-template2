@@ -6,7 +6,7 @@ import Icon from "@common/atoms/Icon";
 import QueryErrorContainer from "@common/atoms/QueryErrorContainer";
 import { columnsQuick } from "@common/atoms/TableSimple";
 import TableSimple from "@common/atoms/TableSimple";
-import { createAPIFetch, queryString, useObservable } from "@common/rxjs/rxjs_utils";
+import { createAPIFetch, createAPIFetchHelper, queryString, useObservable } from "@common/rxjs/rxjs_utils";
 import { isEqual } from "lodash";
 import React, { useEffect, useState } from "react";
 import { AiTwotoneEye } from "react-icons/ai";
@@ -44,16 +44,14 @@ const downloadP$ = downloadPQuery$.pipe(
 	switchMap((params) => {
 		const { type, ...queryParams } = params;
 		return (
-			createAPIFetch<{ blob?; type? }>(
+			createAPIFetchHelper<{ blob?; type? }>({
 				// Define endpoint
-				`/policies${queryString(queryParams)}`,
+				endpoint: `/policies${queryString(queryParams)}`,
 				// Define Header
-				{
-					init: { headers: { Accept: getAcceptHeader(type) } },
-					// Include type in values
-					okReturn: (res) => from(res.blob()).pipe(map((blob) => ({ blob, type }))),
-				}
-			)
+				init: { headers: { Accept: getAcceptHeader(type) } },
+				// Include type in values
+				okReturn: (res) => from(res.blob()).pipe(map((blob) => ({ blob, type }))),
+			})
 				// Don't let anything other than success through!
 				.pipe(
 					filter((v) => !!v?.data),
@@ -63,7 +61,6 @@ const downloadP$ = downloadPQuery$.pipe(
 	})
 );
 const setDownloadPQuery = (v) => downloadPQuery$.next(v);
-const useDownloadPQuery = () => useObservable(downloadP$);
 downloadP$.subscribe(({ blob, type }: any) => {
 	if (window.navigator.msSaveOrOpenBlob) {
 		window.navigator.msSaveOrOpenBlob(
@@ -135,12 +132,8 @@ const Policies = () => {
 	const policies = useApi_Policy();
 	// To set a new policy query value
 	const setPolicyQueryMerge = (v: Partial<PolicyQuery>) => {
-		if (policiesQuery) {
-			const newQuery = { ...policiesQuery, ...v };
-			if (!isEqual(newQuery, policiesQuery)) setApi_PolicyQuery(newQuery);
-		} else {
-			setApi_PolicyQuery({ ...v, pageSize: 20 });
-		}
+		const newQuery: PolicyQuery = { pageSize: 20, ...policiesQuery, ...v };
+		if (!isEqual(newQuery, policiesQuery)) setApi_PolicyQuery(newQuery);
 	};
 	const onFormChange = (v) => {
 		setPolicyQueryMerge(v.values);

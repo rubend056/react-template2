@@ -29,7 +29,7 @@ const APITest = () => {
 	const textLength = useTextLength();
 	const int = useInt();
 	const result = useApi_Policy();
-	const subjectString = useObservable(subjectString$);
+	const subjectString = useObservable(subjectString$, undefined);
 
 	return (
 		<>

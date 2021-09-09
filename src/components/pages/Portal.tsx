@@ -14,8 +14,8 @@ import React, { ReactNode, useState } from "react";
 import { AiOutlineBell, AiOutlinePieChart, AiOutlineUser } from "react-icons/ai";
 import { BiNews } from "react-icons/bi";
 import { Link, Redirect, Route, Switch, useRouteMatch } from "react-router-dom";
-import user_icon from "../../glasses_man_small.jpg";
-import { setApi_SummaryQuery, useApi_Contacts } from "../../rxjs/observables";
+// import user_icon from "../../glasses_man_small.jpg";
+import { setApi_SummaryQuery, useApi_Contacts, useApi_User, useApi_UserPhoto } from "../../rxjs/observables";
 import Dashboard from "../molecules/Dashboard";
 import Policies, { PoliciesDetail } from "../molecules/Policies";
 import Login from "./Login";
@@ -24,6 +24,7 @@ import MyCalendar from "./MyCalendar";
 import OfflineApp from "./OfflineForm";
 import OfflineManage from "./OfflineManage";
 import s from "./Portal.module.scss";
+import user_icon from "../../profile.svg";
 
 export const usePaths = (paths: string[] | string) => {
 	const match = useRouteMatch();
@@ -189,6 +190,8 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 	);
 
 	const contacts = useApi_Contacts();
+	const user = useApi_User();
+	const userPhoto = useApi_UserPhoto();
 
 	return (
 		<>
@@ -210,6 +213,8 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 								{/* <DrawerTogglePreset /> */}
 								<div className='padding-v-3'>
 									<div style={{ display: "flex", justifyContent: "center" }} className='margin-3'>
+										{/* <QueryErrorContainer response={userPhoto}>
+											{({ data: userPhoto }) => ( */}
 										<div
 											style={{
 												borderRadius: "50%",
@@ -219,13 +224,19 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 												overflow: "hidden",
 											}}
 										>
-											<img src={user_icon} alt='Glasses' />
+											{userPhoto?.data ? (
+												<img src={`data:image/png;base64,${userPhoto?.data}`} alt='Profile' />
+											) : (
+												<img src={user_icon} alt='Profile Default' />
+											)}
 										</div>
+										{/* )}
+										</QueryErrorContainer> */}
 									</div>
 									{/* <Icon size={70} style={{ width: "100%" }} className='margin-bottom-1' icon={FaUserCircle}></Icon> */}
 									{/* Contact Selection */}
 									<div className={open ? "" : "hide"}>
-										<QueryErrorContainer response={contacts}>
+										{/* <QueryErrorContainer response={contacts}>
 											{({ data: contacts }) => (
 												<Select
 													onChange={(e) => e.target["value"] && setApi_SummaryQuery({ contactId: e.target["value"] })}
@@ -239,6 +250,9 @@ const Portal = ({ className, children, ...props }: DashboardProps & React.HTMLAt
 														))}
 												</Select>
 											)}
+										</QueryErrorContainer> */}
+										<QueryErrorContainer response={user}>
+											{({ data: user }) => <div>{user.name}</div>}
 										</QueryErrorContainer>
 									</div>
 								</div>

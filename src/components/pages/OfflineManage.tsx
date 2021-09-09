@@ -51,7 +51,7 @@ import { useQueryAction } from "@common/atoms/Hooks/useQueryAction";
 export interface OfflineManageProps {
 	children?: ReactNode | undefined;
 }
-const queryInitial: OfflineAppQuery = { pageSize: 2 };
+const queryInitial: OfflineAppQuery = { pageSize: 10 };
 // const formInitial: FormState = { values: queryInitial };
 const OfflineManage = ({
 	className,
@@ -65,9 +65,9 @@ const OfflineManage = ({
 	const offlines = useApi_OfflineAppGet();
 	const offlinesQuery = useApi_OfflineAppGetQuery();
 	const setOfflineAppGetQueryMerge = (v: Partial<OfflineAppQuery>) => {
-		const query = offlinesQuery ? { ...offlinesQuery, ...v } : { ...queryInitial, ...v };
-		console.log(query);
+		const query = { ...queryInitial, ...offlinesQuery, ...v };
 		setApi_OfflineAppGetQuery(query);
+		console.log(query);
 	};
 	useEffect(() => setOfflineAppGetQueryMerge({}), []);
 	// -------------------------
