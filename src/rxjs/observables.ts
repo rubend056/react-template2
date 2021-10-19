@@ -1,6 +1,4 @@
 import {
-	combineInputs,
-	createAPIFetch,
 	createAPIFetchChain,
 	createAPIFetchEvent,
 	createAPIFetchHelper,
@@ -9,7 +7,7 @@ import {
 	responseIsValid,
 } from "@common/rxjs/rxjs_utils";
 import { jwtParse } from "@common/utils";
-import { combineLatestAll, filter, from, map, Observable, of, shareReplay, startWith, switchMap } from "rxjs";
+import { filter, map, Observable, of, shareReplay, startWith } from "rxjs";
 import { OfflineAppFormType } from "../components/pages/OfflineForm_val";
 
 type DetailQuery = { id: string };
@@ -28,12 +26,13 @@ export interface LoginQuery extends AuthCommon {
 	password: string;
 }
 export interface RegisterQuery extends LoginQuery {}
-export const [setApi_LoginPostQuery, useApi_LoginPostQuery, useApi_LoginPost, loginPost$] = createAPIFetchEvent<
-	LoginQuery,
-	ResponseFetch<Login>
->(([v]) => createAPIFetchHelper<Login>({ endpoint: `/login`, type: "json", body: v, baseUrl: baseURLAuth }), {
-	shareReplay: false,
-});
+export const [setApi_LoginPostQuery, useApi_LoginPostQuery, useApi_LoginPost, loginPost$] = createAPIFetchEvent(
+	([v]) => createAPIFetchHelper<Login>({ endpoint: `/login`, type: "json", body: v, baseUrl: baseURLAuth }),
+	{
+		shareReplay: false,
+		inputType: {} as LoginQuery,
+	}
+);
 
 const tokenValid$ = loginPost$.pipe(
 	map((r) => (responseIsValid(r) ? r?.data?.token : undefined)),
@@ -44,30 +43,33 @@ const tokenValid$ = loginPost$.pipe(
 );
 
 export const [setApi_RegisterPostQuery, useApi_RegisterPostQuery, useApi_RegisterPost, registerPost$] =
-	createAPIFetchEvent<RegisterQuery, ResponseFetch<boolean>>(
+	createAPIFetchEvent(
 		([v]) => createAPIFetchHelper<boolean>({ endpoint: `/register`, type: "json", body: v, baseUrl: baseURLAuth }),
 		{
 			shareReplay: false,
+			inputType: {} as RegisterQuery,
 		}
 	);
 
 export interface ForgotPassQuery extends AuthCommon {}
 export const [setApi_ForgotPassPostQuery, useApi_ForgotPassPostQuery, useApi_ForgotPassPost, forgotPassPost$] =
-	createAPIFetchEvent<ForgotPassQuery, ResponseFetch<boolean>>(
+	createAPIFetchEvent(
 		([v]) =>
 			createAPIFetchHelper<boolean>({ endpoint: `/forgotPassword`, type: "json", body: v, baseUrl: baseURLAuth }),
 		{
 			shareReplay: false,
+			inputType: {} as ForgotPassQuery,
 		}
 	);
 export interface ResetPassQuery extends LoginQuery {
 	code: string;
 }
 export const [setApi_ResetPassPostQuery, useApi_ResetPassPostQuery, useApi_ResetPassPost, resetPassPost$] =
-	createAPIFetchEvent<ResetPassQuery, ResponseFetch<boolean>>(
+	createAPIFetchEvent(
 		([v]) => createAPIFetchHelper<boolean>({ endpoint: `/resetPassword`, type: "json", body: v, baseUrl: baseURLAuth }),
 		{
 			shareReplay: false,
+			inputType: {} as ResetPassQuery,
 		}
 	);
 
@@ -204,15 +206,17 @@ interface Policy {
 	statename: string;
 }
 
-export const [setApi_PolicyQuery, useApi_PolicyQuery, useApi_Policy, policy$] = createAPIFetchEvent<
-	PolicyQuery,
-	ResponseFetch<PagesResponse<Policy>>
->(([v]) => createAPIFetchHelper({ endpoint: "/Policies", query: v }));
+export const [setApi_PolicyQuery, useApi_PolicyQuery, useApi_Policy, policy$] = createAPIFetchEvent(
+	([v]) => createAPIFetchHelper<PagesResponse<Policy>>({ endpoint: "/Policies", query: v }),
+	{ inputType: {} as PolicyQuery }
+);
 // ----------------------
 
 // * POLICY DETAIL *********
 export const [setApi_PolicyDetailQuery, useApi_PolicyDetailQuery, useApi_PolicyDetail, policyDetail$] =
-	createAPIFetchEvent<DetailQuery, any>(([v]) => createAPIFetchHelper({ endpoint: `/Policies/detail/${v.id}` }));
+	createAPIFetchEvent(([{ id }]) => createAPIFetchHelper<any>({ endpoint: `/Policies/detail/${id}` }), {
+		inputType: {} as DetailQuery,
+	});
 // ----------------------
 
 // * SUMMARY *********
@@ -234,10 +238,10 @@ export interface SummaryItem {
 	year: number;
 }
 
-export const [setApi_SummaryQuery, useApi_SummaryQuery, useApi_Summary, summary$] = createAPIFetchEvent<
-	SummaryQuery,
-	ResponseFetch<SummaryItem[]>
->(([v]) => createAPIFetchHelper({ endpoint: "/Policies/summaries", query: v }));
+export const [setApi_SummaryQuery, useApi_SummaryQuery, useApi_Summary, summary$] = createAPIFetchEvent(
+	([v]) => createAPIFetchHelper<SummaryItem[]>({ endpoint: "/Policies/summaries", query: v }),
+	{ inputType: {} as SummaryQuery }
+);
 // ----------------------
 
 // * OFFLINEAPP GET *********
@@ -252,17 +256,17 @@ export interface OfflineApp extends OfflineAppFormType {
 }
 
 export const [setApi_OfflineAppGetQuery, useApi_OfflineAppGetQuery, useApi_OfflineAppGet, offlineAppGet$] =
-	createAPIFetchEvent<OfflineAppQuery, ResponseFetch<PagesResponse<OfflineApp>>>(([v]) =>
-		createAPIFetchHelper({ endpoint: "/OfflineApp", query: v })
-	);
+	createAPIFetchEvent(([v]) => createAPIFetchHelper<PagesResponse<OfflineApp>>({ endpoint: "/OfflineApp", query: v }), {
+		inputType: {} as OfflineAppQuery,
+	});
 // ----------------------
 
 // * OFFLINEAPP POST *********
 export const [setApi_OfflineAppPostQuery, useApi_OfflineAppPostQuery, useApi_OfflineAppPost, offlineAppPost$] =
-	createAPIFetchEvent<OfflineAppFormType, any>(
-		([v]) => createAPIFetchHelper({ endpoint: "/OfflineApp", body: v, type: "json" }),
-		{ shareReplay: false }
-	);
+	createAPIFetchEvent(([v]) => createAPIFetchHelper<any>({ endpoint: "/OfflineApp", body: v, type: "json" }), {
+		shareReplay: false,
+		inputType: {} as OfflineAppFormType,
+	});
 // ----------------------
 
 // * OFFLINEAPP/ID GET *********
@@ -272,14 +276,14 @@ export interface OfflineAppId extends OfflineAppFormType {
 	membersLength?: number;
 }
 export const [setApi_OfflineAppIdGetQuery, useApi_OfflineAppIdGetQuery, useApi_OfflineAppIdGet, offlineAppIdGet$] =
-	createAPIFetchEvent<DetailQuery, ResponseFetch<OfflineAppId>>(([v]) =>
-		createAPIFetchHelper<OfflineAppId>({ endpoint: `/OfflineApp/${v.id}` })
-	);
+	createAPIFetchEvent(([v]) => createAPIFetchHelper<OfflineAppId>({ endpoint: `/OfflineApp/${v.id}` }), {
+		inputType: {} as DetailQuery,
+	});
 // ----------------------
 
 // * OFFLINEAPP/ID PUT *********
 export const [setApi_OfflineAppIdPutQuery, useApi_OfflineAppIdPutQuery, useApi_OfflineAppIdPut, offlineAppIdPut$] =
-	createAPIFetchEvent<DetailQuery & OfflineAppFormType, ResponseFetch<SuccessResponse>>(
+	createAPIFetchEvent(
 		([{ id, ...v }]) =>
 			createAPIFetchHelper<SuccessResponse>({
 				endpoint: `/OfflineApp/${id}`,
@@ -289,7 +293,7 @@ export const [setApi_OfflineAppIdPutQuery, useApi_OfflineAppIdPutQuery, useApi_O
 				type: "json",
 				body: v,
 			}),
-		{ shareReplay: false }
+		{ shareReplay: false, inputType: {} as DetailQuery & OfflineAppFormType }
 	);
 // ----------------------
 // * OFFLINEAPP/STATUS POST *********
@@ -303,9 +307,9 @@ export const [
 	useApi_OfflineAppStatusPostQuery,
 	useApi_OfflineAppStatusPost,
 	offlineAppStatusPost$,
-] = createAPIFetchEvent<OfflineAppStatusQuery, ResponseFetch<OfflineAppStatus[]>>(
+] = createAPIFetchEvent(
 	([{ ...v }]) => createAPIFetchHelper<OfflineAppStatus[]>({ endpoint: `/OfflineApp/status`, type: "json", body: v }),
-	{ shareReplay: false }
+	{ shareReplay: false, inputType: {} as OfflineAppStatusQuery }
 );
 // ----------------------
 
@@ -320,8 +324,11 @@ export const [
 	useApi_OfflineAppIdStatusGetQuery,
 	useApi_OfflineAppIdStatusGet,
 	offlineAppIdStatusGet$,
-] = createAPIFetchEvent<DetailQuery, ResponseFetch<OfflineAppStatus[]>>(([v]) =>
-	createAPIFetchHelper<OfflineAppStatus[]>({ endpoint: `/OfflineApp/${v.id}/status` })
+] = createAPIFetchEvent(
+	([{ id }]) => createAPIFetchHelper<OfflineAppStatus[]>({ endpoint: `/OfflineApp/${id}/status` }),
+	{
+		inputType: {} as DetailQuery,
+	}
 );
 // ----------------------
 
@@ -336,10 +343,10 @@ export const [
 	useApi_OfflineAppIdStatusPostQuery,
 	useApi_OfflineAppIdStatusPost,
 	offlineAppIdStatusPost$,
-] = createAPIFetchEvent<OfflineAppIdStatusQuery, ResponseFetch<OfflineAppStatus>>(
+] = createAPIFetchEvent(
 	([{ id, ...v }]) =>
 		createAPIFetchHelper<OfflineAppStatus>({ endpoint: `/OfflineApp/${id}/status`, type: "json", body: v }),
-	{ shareReplay: false }
+	{ shareReplay: false, inputType: {} as OfflineAppIdStatusQuery }
 );
 // ----------------------
 
@@ -392,4 +399,118 @@ export const [useApi_UserPaymentQuery, useApi_UserPayment, userPayment$] = creat
 	// return createAPIFetchHelper<UserPayment>({ endpoint: "/user/payment", ...v });
 });
 
+// ----------------------
+
+// * CONFIGURATION *********
+export interface GeneralConfigGetQuery {
+	variable?: string;
+	value?: string;
+	type?: string;
+}
+export interface GeneralConfigItem {
+	id: string;
+	variable: string;
+	value: string;
+	description: string;
+	type: "date" | "string" | "integer" | "decimal" | "boolean";
+}
+export const [setApi_GeneralConfigQuery, useApi_GeneralConfigQuery, useApi_GeneralConfig, generalConfig$] =
+	createAPIFetchEvent(([v]) => createAPIFetchHelper<GeneralConfigItem[]>({ endpoint: "/GeneralConfig", query: v }), {
+		inputType: {} as GeneralConfigGetQuery,
+	});
+
+export const [
+	setApi_GeneralConfigPostQuery,
+	useApi_GeneralConfigPostQuery,
+	useApi_GeneralConfigPost,
+	generalConfigPost$,
+] = createAPIFetchEvent(([v]) => createAPIFetchHelper<boolean>({ endpoint: "/GeneralConfig", body: v, type: "json" }), {
+	shareReplay: false,
+	inputType: {} as Omit<GeneralConfigItem, "id">,
+});
+
+export const [setApi_GeneralConfigPutQuery, useApi_GeneralConfigPutQuery, useApi_GeneralConfigPut, generalConfigPut$] =
+	createAPIFetchEvent(
+		([{ id, ...v }]) =>
+			createAPIFetchHelper<boolean>({
+				endpoint: `/GeneralConfig/${id}`,
+				init: { method: "PUT" },
+				body: v,
+				type: "json",
+			}),
+		{ shareReplay: false, inputType: {} as GeneralConfigItem }
+	);
+
+export const [
+	setApi_GeneralConfigDeleteQuery,
+	useApi_GeneralConfigDeleteQuery,
+	useApi_GeneralConfigDelete,
+	generalConfigDelete$,
+] = createAPIFetchEvent(
+	([{ id }]) => createAPIFetchHelper<boolean>({ endpoint: `/GeneralConfig/${id}`, init: { method: "DELETE" } }),
+	{ shareReplay: false, inputType: {} as DetailQuery }
+);
+// ----------------------
+
+// * AGENT COMMISSION STATEMENT *********
+interface AgentCommissionQuery {
+	year?: number;
+	month?: number;
+	agentId?: string;
+	carrierId?: string;
+	pageSize?: number;
+	pageNumber?: number;
+}
+export interface AgentCommissionItem {
+	agentName: string;
+	agentId: string;
+	carrierId: string;
+	carrierName: string;
+	amount: number;
+	totalMembers: number;
+	totalPolicies: number;
+	month: number;
+	year: number;
+}
+
+// ! NEED TO FIX PARTIAL TYPE ARGUMENTS
+// * Workaround with inputType object
+const agentCommissionInit: AgentCommissionQuery = { pageNumber: 10 };
+export const [setApi_AgentCommissionQuery, useApi_AgentCommissionQuery, useApi_AgentCommission, agentCommission$] =
+	createAPIFetchEvent(
+		([v, { token }]) =>
+			createAPIFetchHelper<PagesResponse<AgentCommissionItem>>({
+				endpoint: "/Comissions/paymentSummaries",
+				query: v,
+				token,
+			}),
+		{ combine$: [tokenValid$], startWith: agentCommissionInit }
+	);
+
+// ----------------------
+
+// * COMMISSION *********
+export interface CommissionQuery extends PagesQuery {
+	agentId?: string;
+	carrierId?: string;
+	contactId?: string;
+	fromDate?: string;
+	toDate?: string;
+}
+interface Commission {
+	id: string;
+	contactId: string;
+	agentId: string;
+	agentName: string;
+	email?: string;
+	totalMembers: number;
+	totalPolicies: number;
+	carrierId: string;
+	carrierName: string;
+}
+
+export const [setApi_CommissionQuery, useApi_CommissionQuery, useApi_Commission, commission$] = createAPIFetchEvent(
+	([v]) => createAPIFetchHelper<Commission>({ endpoint: "/Commissions", query: v }),
+	{ inputType: {} as CommissionQuery }
+);
 // ----------------------
